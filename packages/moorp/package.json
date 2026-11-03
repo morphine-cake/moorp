@@ -1,0 +1,7 @@
+{
+  "name": "moorp",
+  "version": "0.0.0",
+  "description": "Local-first visual workspace for code-driven frontend design. Placeholder release; the CLI is not implemented yet.",
+  "keywords": ["frontend", "canvas", "storybook", "design", "hmr"],
+  "files": ["README.md"]
+}
