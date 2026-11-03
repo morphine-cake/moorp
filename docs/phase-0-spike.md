@@ -140,4 +140,15 @@ Findings and limits:
 - `frame-check` fetches every Page Frame URL once more, so each page is requested twice (40 requests for 20 frames). Cache the result per URL, and only re-check on URL change or on a failed load.
 - Suspending or snapshotting offscreen frames is not needed at this scale; revisit with real content.
 
+### Experiment 5, second run — AI-written component bound through the manifest
+
+Claude Code (this agent) added a blank frame (`frame-11`, `source: null`) to the canvas, wrote `src/components/UserCard.vue` (props with defaults, scoped styles, uses the global `--accent`), and bound it by editing the manifest to `{ "file": "src/components/UserCard.vue" }`. No agent API was involved, only ordinary file edits.
+
+| Check | Result |
+| --- | --- |
+| Renders after the binding edit | Pass. The frame shows "AL / Ada Lovelace / Mathematician", the avatar uses the global accent colour (`rgb(79, 70, 229)`), no error banner. |
+| Hug sizing | Pass. 183 × 66 px after the component reported its size. |
+| Blank hug frame before binding | Finding: it stays at its 2000 × 2000 px start size with nothing drawn, because no `size` message arrives. Blank frames need a default size (for example the 240 × 120 fixed size used for blank frames elsewhere in the spec) until a source is bound. |
+| No restart needed | Not shown in this run. Adding a new `.vue` file changes the `import.meta.glob` result and the page appears to have reloaded, so the "other frames keep their state" check from the first run (binding an existing file) was not repeated. A newly created component file likely needs a full reload in this setup; check whether the preview glob can pick up new files through HMR. |
+
 Not run: none. Exit gate status: 2, 3, 4 and 5 pass, with the caveat above on 5. All nine experiments now have a recorded result.

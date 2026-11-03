@@ -136,6 +136,18 @@
       "y": 420,
       "width": 400,
       "height": 360
+    },
+    {
+      "id": "frame-11",
+      "name": "User card",
+      "type": "design",
+      "source": {
+        "file": "src/components/UserCard.vue"
+      },
+      "x": 300,
+      "y": 200,
+      "width": "hug",
+      "height": "hug"
     }
   ]
 }
