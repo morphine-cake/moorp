@@ -80,3 +80,23 @@ export function validateCanvas(input: unknown): string[] {
   })
   return errors
 }
+
+/** A copy of a frame with a new id and name, offset so it does not sit on top of the original. Source files are never copied. */
+export function duplicateFrame(canvas: Canvas, id: string): Frame | null {
+  const original = canvas.frames.find((f) => f.id === id)
+  if (!original) return null
+  return {
+    // JSON clone (not structuredClone): callers may pass a reactive proxy, which structuredClone rejects.
+    ...(JSON.parse(JSON.stringify(original)) as Frame),
+    id: nextFrameId(canvas),
+    name: `${original.name} copy`,
+    x: original.x + 40,
+    y: original.y + 40,
+  }
+}
+
+/** Canvas paths look like `Folder/Sub/Name` (no extension): letters, digits, space, `-`, `_`, `.` inside names, `/` between them. */
+export function isValidCanvasPath(path: unknown): path is string {
+  if (typeof path !== 'string' || path.length === 0 || path.length > 200) return false
+  return path.split('/').every((part) => /^[\w][\w .-]*$/.test(part) && part !== '.' && part !== '..' && !part.endsWith('.') && !part.endsWith(' '))
+}

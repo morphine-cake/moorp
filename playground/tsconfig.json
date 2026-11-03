@@ -1,6 +1,5 @@
 {
   "extends": "../tsconfig.base.json",
-  "compilerOptions": { "noEmit": true, "types": ["vite/client", "node"] },
-  "include": ["src", ".visual-canvas", "vite.config.ts", "open-source.ts"],
-  "exclude": ["open-source.test.ts"]
+  "compilerOptions": { "noEmit": true, "types": ["vite/client"] },
+  "include": ["src", ".visual-canvas", "vite.config.ts"]
 }

@@ -1,10 +1,10 @@
 import { createApp, type App, type Component } from 'vue'
-import { PROTOCOL, isProtocolMessage, type PreviewToShell } from '@moorp/core'
+import { PROTOCOL, isProtocolMessage, type Presentation, type PreviewToShell } from '@moorp/core'
 
 export type ComponentLoader = (file: string, exportName?: string) => Promise<Component>
 
 export type PreviewOptions = {
-  /** Resolves a manifest source ref to a component. Supplied by the dev-server integration (e.g. Vite glob import). */
+  /** Resolves a manifest source ref to a component. Supplied by the dev-server integration (a dev-server URL import). */
   load: ComponentLoader
   /** Called with the app before mount: install router, pinia, i18n etc. (the `preview.ts` context). */
   setup?: (app: App) => void
@@ -18,9 +18,30 @@ export function startPreview({ load, setup, root }: PreviewOptions): () => void 
   const post = (msg: Omit<PreviewToShell, 'protocol' | 'frameId'> & { type: PreviewToShell['type'] }) =>
     window.parent.postMessage({ protocol: PROTOCOL, frameId, ...msg }, '*')
 
+  // Border box, so frame padding counts towards the size a hug frame reports.
   const observer = new ResizeObserver(([entry]) => {
-    if (entry) post({ type: 'size', width: entry.contentRect.width, height: entry.contentRect.height } as never)
+    const box = entry?.borderBoxSize?.[0]
+    if (entry) post({ type: 'size', width: box?.inlineSize ?? entry.contentRect.width, height: box?.blockSize ?? entry.contentRect.height } as never)
   })
+
+  let hug = false
+  /** Frame presentation lives in the preview document, around the component, never in the component's own CSS. */
+  function applyPresentation(p: Presentation = {}) {
+    const html = document.documentElement
+    html.style.background = p.background ?? ''
+    html.style.overflow = p.overflow === 'hidden' ? 'hidden' : p.overflow === 'scroll' ? 'scroll' : ''
+    root.style.boxSizing = 'border-box'
+    root.style.padding = p.padding ? `${p.padding}px` : ''
+    // Hug: root shrinks to its content so the reported size is the content's, not the iframe's.
+    if (hug) root.style.display = 'inline-block'
+    else if (p.alignment) {
+      root.style.display = 'flex'
+      root.style.justifyContent = p.alignment === 'start' ? 'flex-start' : p.alignment === 'end' ? 'flex-end' : 'center'
+    } else {
+      root.style.display = 'block'
+      root.style.justifyContent = ''
+    }
+  }
 
   async function mount(file: string, exportName?: string) {
     app?.unmount()
@@ -30,7 +51,7 @@ export function startPreview({ load, setup, root }: PreviewOptions): () => void 
       app.config.errorHandler = (err) => post({ type: 'error', message: String(err) } as never)
       setup?.(app)
       app.mount(root)
-      observer.observe(root)
+      observer.observe(root, { box: 'border-box' })
       post({ type: 'ready' } as never)
     } catch (err) {
       post({ type: 'error', message: err instanceof Error ? err.message : String(err) } as never)
@@ -42,9 +63,11 @@ export function startPreview({ load, setup, root }: PreviewOptions): () => void 
     const msg = event.data
     if (msg.type === 'init') {
       frameId = msg.frameId
-      // Hug: root shrinks to its content so the reported size is the content's, not the iframe's.
-      root.style.display = msg.hug ? 'inline-block' : 'block'
+      hug = msg.hug
+      applyPresentation(msg.presentation)
       void mount(msg.source.file, msg.source.export)
+    } else if (msg.type === 'update') {
+      applyPresentation(msg.presentation)
     } else if (msg.type === 'dispose') {
       app?.unmount()
       app = null

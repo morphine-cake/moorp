@@ -1,2 +1,2 @@
-export * from './manifest'
-export * from './protocol'
+export * from './manifest.ts'
+export * from './protocol.ts'

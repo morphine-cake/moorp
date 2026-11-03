@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createEmptyCanvas, nextFrameId, validateCanvas } from './manifest.ts'
+import { createEmptyCanvas, duplicateFrame, isValidCanvasPath, nextFrameId, validateCanvas } from './manifest.ts'
 
 test('empty canvas is valid', () => {
   assert.deepEqual(validateCanvas(createEmptyCanvas()), [])
@@ -24,4 +24,27 @@ test('page frames need a url', () => {
   assert.deepEqual(validateCanvas(canvas), ['frames[0].url is required for page frames'])
   canvas.frames[0]!.url = '/demo.html'
   assert.deepEqual(validateCanvas(canvas), [])
+})
+
+test('duplicateFrame copies presentation and source reference with a new id', () => {
+  const canvas = createEmptyCanvas()
+  canvas.frames.push({ id: 'frame-1', name: 'Card', type: 'design', source: { file: 'a.vue' }, x: 0, y: 0, width: 'hug', height: 'hug', presentation: { padding: 8 } })
+  const copy = duplicateFrame(canvas, 'frame-1')!
+  assert.equal(copy.id, 'frame-2')
+  assert.deepEqual(copy.source, { file: 'a.vue' })
+  assert.deepEqual(copy.presentation, { padding: 8 })
+  assert.notEqual(copy.presentation, canvas.frames[0]!.presentation)
+  assert.equal(duplicateFrame(canvas, 'nope'), null)
+})
+
+test('canvas paths', () => {
+  for (const ok of ['Welcome', 'Components/Buttons', 'A b/C-d_1']) assert.equal(isValidCanvasPath(ok), true, ok)
+  for (const bad of ['', '../x', 'a/../b', '/abs', 'a//b', 'a/', '.hidden', 'x\\y', 'a\0b', 42]) assert.equal(isValidCanvasPath(bad), false, String(bad))
+})
+
+test('duplicateFrame accepts a proxy (as a reactive store would pass)', () => {
+  const canvas = createEmptyCanvas()
+  canvas.frames.push({ id: 'frame-1', name: 'Card', type: 'design', source: { file: 'a.vue' }, x: 0, y: 0, width: 'hug', height: 'hug' })
+  const proxied = { ...canvas, frames: canvas.frames.map((f) => new Proxy(f, {})) }
+  assert.equal(duplicateFrame(proxied, 'frame-1')!.id, 'frame-2')
 })

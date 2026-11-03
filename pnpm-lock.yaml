@@ -14,6 +14,41 @@ importers:
 
   packages/core: {}
 
+  packages/moorp:
+    dependencies:
+      '@moorp/core':
+        specifier: workspace:*
+        version: link:../core
+      '@moorp/shell':
+        specifier: workspace:*
+        version: link:../shell
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.20.5
+      vite:
+        specifier: ^6.0.0
+        version: 6.4.5(@types/node@22.20.5)
+
+  packages/shell:
+    dependencies:
+      '@moorp/core':
+        specifier: workspace:*
+        version: link:../core
+      vue:
+        specifier: ^3.5.0
+        version: 3.5.44(typescript@5.9.3)
+    devDependencies:
+      '@vitejs/plugin-vue':
+        specifier: ^5.2.0
+        version: 5.2.4(vite@6.4.5(@types/node@26.6.6))(vue@3.5.44(typescript@5.9.3))
+      vite:
+        specifier: ^6.0.0
+        version: 6.4.5(@types/node@26.6.6)
+      vue-tsc:
+        specifier: ^2.1.0
+        version: 2.2.12(typescript@5.9.3)
+
   packages/vue:
     dependencies:
       '@moorp/core':
@@ -26,12 +61,12 @@ importers:
 
   playground:
     dependencies:
-      '@moorp/core':
-        specifier: workspace:*
-        version: link:../packages/core
       '@moorp/vue':
         specifier: workspace:*
         version: link:../packages/vue
+      moorp:
+        specifier: workspace:*
+        version: link:../packages/moorp
       vue:
         specifier: ^3.5.0
         version: 3.5.44(typescript@5.9.3)
@@ -40,14 +75,14 @@ importers:
         version: 4.6.4(vue@3.5.44(typescript@5.9.3))
     devDependencies:
       '@types/node':
-        specifier: ^26.6.6
-        version: 26.6.6
+        specifier: ^22.0.0
+        version: 22.20.5
       '@vitejs/plugin-vue':
         specifier: ^5.2.0
-        version: 5.2.4(vite@6.4.5(@types/node@26.6.6))(vue@3.5.44(typescript@5.9.3))
+        version: 5.2.4(vite@6.4.5(@types/node@22.20.5))(vue@3.5.44(typescript@5.9.3))
       vite:
         specifier: ^6.0.0
-        version: 6.4.5(@types/node@26.6.6)
+        version: 6.4.5(@types/node@22.20.5)
       vue-tsc:
         specifier: ^2.1.0
         version: 2.2.12(typescript@5.9.3)
@@ -369,6 +404,9 @@ packages:
   '@types/estree@1.0.10':
     resolution: {integrity: sha512-lTyOMnOcmRBzdCv6/4zUZCrEhV0xrqQiUZBZtVcbmLHBXKLnN8q89v/wKRF/Q0HbwVsqbIG3o5HDoFl9sduM+g==}
 
+  '@types/node@22.20.5':
+    resolution: {integrity: sha512-U2+DNr+wSjpsTS/wZGYHq7GcwfuSmKiKvoPvK22zwTlRhU91yOniN4qRR5KhIjvif7ysw/dz/hKmfDH0Ris4aA==}
+
   '@types/node@26.6.6':
     resolution: {integrity: sha512-MzQj+8Kx3XI40OmUAE6Qoh58ZMNstNNMwn2nfd3qWsfe7nDNSqJNzes4njhz6AHwrSHOffSLwXU6yb474Q4aog==}
 
@@ -520,6 +558,9 @@ packages:
     resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
     engines: {node: '>=14.17'}
     hasBin: true
+
+  undici-types@6.21.0:
+    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
   undici-types@8.9.0:
     resolution: {integrity: sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==}
@@ -764,9 +805,19 @@ snapshots:
 
   '@types/estree@1.0.10': {}
 
+  '@types/node@22.20.5':
+    dependencies:
+      undici-types: 6.21.0
+
   '@types/node@26.6.6':
     dependencies:
       undici-types: 8.9.0
+    optional: true
+
+  '@vitejs/plugin-vue@5.2.4(vite@6.4.5(@types/node@22.20.5))(vue@3.5.44(typescript@5.9.3))':
+    dependencies:
+      vite: 6.4.5(@types/node@22.20.5)
+      vue: 3.5.44(typescript@5.9.3)
 
   '@vitejs/plugin-vue@5.2.4(vite@6.4.5(@types/node@26.6.6))(vue@3.5.44(typescript@5.9.3))':
     dependencies:
@@ -979,7 +1030,22 @@ snapshots:
 
   typescript@5.9.3: {}
 
-  undici-types@8.9.0: {}
+  undici-types@6.21.0: {}
+
+  undici-types@8.9.0:
+    optional: true
+
+  vite@6.4.5(@types/node@22.20.5):
+    dependencies:
+      esbuild: 0.25.12
+      fdir: 6.5.0(picomatch@4.0.7)
+      picomatch: 4.0.7
+      postcss: 8.5.32
+      rollup: 4.67.4
+      tinyglobby: 0.2.17
+    optionalDependencies:
+      '@types/node': 22.20.5
+      fsevents: 2.3.3
 
   vite@6.4.5(@types/node@26.6.6):
     dependencies:
