@@ -72,4 +72,20 @@ Chosen approach: the shell owns wheel and drag on the canvas and toolbars; each 
 
 Limits: all checks used dispatched events, not a real trackpad or mouse, so wheel sensitivity is unverified. A mouse-wheel notch (deltaY ±100) zooms about 2.7× with the current `exp(-deltaY * 0.01)`, which is too coarse; the delta needs normalising (line vs pixel mode, clamp) before it feels right. Frame moves are not persisted back to the manifest yet, and a manifest edit resets a moved frame to its saved `x`/`y`. Keyboard modifiers (space-drag, middle button) and touch are untested.
 
-Not run: 1, 6, 8, 9. Exit gate status: 2, 3, 4 and 5 pass, with the caveat above on 5.
+### Experiment 1 — Page Frame fidelity
+
+The same `demo.html` (media queries at 600/1000 px, a `position: fixed` header, a `position: sticky` heading inside a scroll container) embedded as `type: "page"` frames at 375, 768 and 1280 px wide.
+
+| Check | Result |
+| --- | --- |
+| Viewport units / media queries follow the iframe width | Pass. `innerWidth` was 375 / 768 / 1280 and the three breakpoints gave three different backgrounds. |
+| `position: fixed` follows the iframe viewport | Pass. After scrolling the page 200 px the header stayed at `top: 0`, full frame width. |
+| `position: sticky` follows its scroll container | Pass. After scrolling the container 100 px the heading stayed at the container's top. |
+| Canvas zoom does not change the page's viewport | Pass. At 0.135× the 375 px frame still reported `innerWidth` 375 and no 600 px media query. |
+| Embedding blocked by headers | Pass for `X-Frame-Options: DENY`: the frame shows "Cannot embed /blocked: X-Frame-Options: DENY". |
+
+How blocking is detected: a browser cannot read why a cross-origin iframe stayed blank, so the dev server exposes `/__moorp/frame-check?url=`, which fetches the URL and reads `X-Frame-Options` and CSP `frame-ancestors` (DENY blocks everyone; SAMEORIGIN and a restrictive `frame-ancestors` block cross-origin embedders). Only `http(s)` URLs are fetched.
+
+Limits: only same-origin pages and one blocked header were tested, not a real third-party site or a framework dev server. The check endpoint is an open fetch proxy on the dev server (server-side request forgery risk if it were ever exposed beyond localhost), so it needs an allow-list of the project's own origins before it ships. A page that blocks embedding with JavaScript frame-busting is not detected. The core validator now requires `url` on page frames.
+
+Not run: 6, 8, 9. Exit gate status: 2, 3, 4 and 5 pass, with the caveat above on 5.

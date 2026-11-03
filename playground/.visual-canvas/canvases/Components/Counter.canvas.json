@@ -1,11 +1,141 @@
 {
   "version": 1,
   "frames": [
-    { "id": "frame-1", "name": "Counter A", "type": "design", "source": { "file": "src/components/Counter.vue" }, "x": 0, "y": 0, "width": "hug", "height": "hug", "presentation": { "padding": 16, "background": "#ffffff" } },
-    { "id": "frame-2", "name": "Counter B", "type": "design", "source": { "file": "src/components/Counter.vue" }, "x": 260, "y": 0, "width": "hug", "height": "hug", "presentation": { "padding": 16, "background": "#ffffff" } },
-    { "id": "frame-3", "name": "Counter C", "type": "design", "source": { "file": "src/components/Counter.vue" }, "x": 520, "y": 0, "width": "hug", "height": "hug", "presentation": { "padding": 16, "background": "#ffffff" } },
-    { "id": "frame-4", "name": "Counter D", "type": "design", "source": { "file": "src/components/Counter.vue" }, "x": 780, "y": 0, "width": "hug", "height": "hug", "presentation": { "padding": 16, "background": "#ffffff" } },
-    { "id": "frame-5", "name": "Counter E", "type": "design", "source": { "file": "src/components/Counter.vue" }, "x": 1040, "y": 0, "width": "hug", "height": "hug", "presentation": { "padding": 16, "background": "#ffffff" } },
-    { "id": "frame-6", "name": "Blank", "type": "design", "source": { "file": "src/components/Counter.vue" }, "x": 0, "y": 200, "width": 240, "height": 120 }
+    {
+      "id": "frame-1",
+      "name": "Counter A",
+      "type": "design",
+      "source": {
+        "file": "src/components/Counter.vue"
+      },
+      "x": 0,
+      "y": 0,
+      "width": "hug",
+      "height": "hug",
+      "presentation": {
+        "padding": 16,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "id": "frame-2",
+      "name": "Counter B",
+      "type": "design",
+      "source": {
+        "file": "src/components/Counter.vue"
+      },
+      "x": 260,
+      "y": 0,
+      "width": "hug",
+      "height": "hug",
+      "presentation": {
+        "padding": 16,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "id": "frame-3",
+      "name": "Counter C",
+      "type": "design",
+      "source": {
+        "file": "src/components/Counter.vue"
+      },
+      "x": 520,
+      "y": 0,
+      "width": "hug",
+      "height": "hug",
+      "presentation": {
+        "padding": 16,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "id": "frame-4",
+      "name": "Counter D",
+      "type": "design",
+      "source": {
+        "file": "src/components/Counter.vue"
+      },
+      "x": 780,
+      "y": 0,
+      "width": "hug",
+      "height": "hug",
+      "presentation": {
+        "padding": 16,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "id": "frame-5",
+      "name": "Counter E",
+      "type": "design",
+      "source": {
+        "file": "src/components/Counter.vue"
+      },
+      "x": 1040,
+      "y": 0,
+      "width": "hug",
+      "height": "hug",
+      "presentation": {
+        "padding": 16,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "id": "frame-6",
+      "name": "Blank",
+      "type": "design",
+      "source": {
+        "file": "src/components/Counter.vue"
+      },
+      "x": 0,
+      "y": 200,
+      "width": 240,
+      "height": 120
+    },
+    {
+      "id": "frame-7",
+      "name": "Mobile",
+      "type": "page",
+      "url": "/demo.html",
+      "source": null,
+      "x": 0,
+      "y": 420,
+      "width": 375,
+      "height": 360
+    },
+    {
+      "id": "frame-8",
+      "name": "Tablet",
+      "type": "page",
+      "url": "/demo.html",
+      "source": null,
+      "x": 420,
+      "y": 420,
+      "width": 768,
+      "height": 360
+    },
+    {
+      "id": "frame-9",
+      "name": "Desktop",
+      "type": "page",
+      "url": "/demo.html",
+      "source": null,
+      "x": 1230,
+      "y": 420,
+      "width": 1280,
+      "height": 360
+    },
+    {
+      "id": "frame-10",
+      "name": "Blocked",
+      "type": "page",
+      "url": "/blocked",
+      "source": null,
+      "x": 2560,
+      "y": 420,
+      "width": 400,
+      "height": 360
+    }
   ]
 }

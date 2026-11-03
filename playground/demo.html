@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demo page</title>
+    <style>
+      body { margin: 0; font: 14px system-ui; background: #e0f2fe; }
+      @media (min-width: 600px) { body { background: #fef9c3; } }
+      @media (min-width: 1000px) { body { background: #dcfce7; } }
+      #fixed { position: fixed; top: 0; left: 0; right: 0; height: 32px; background: #1e293b; color: #fff; padding: 6px 12px; box-sizing: border-box; }
+      #scroller { margin-top: 32px; height: 300px; overflow: auto; background: #fff; }
+      #sticky { position: sticky; top: 0; background: #fde68a; padding: 4px 12px; }
+      .row { height: 60px; padding: 8px 12px; border-bottom: 1px solid #ddd; }
+      #tall { height: 1200px; }
+    </style>
+  </head>
+  <body>
+    <div id="fixed">Fixed header</div>
+    <div id="scroller">
+      <div id="sticky">Sticky heading</div>
+      <div class="row">Row 1</div><div class="row">Row 2</div><div class="row">Row 3</div>
+      <div class="row">Row 4</div><div class="row">Row 5</div><div class="row">Row 6</div>
+    </div>
+    <div id="tall"></div>
+  </body>
+</html>

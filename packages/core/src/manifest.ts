@@ -68,6 +68,7 @@ export function validateCanvas(input: unknown): string[] {
     else seen.add(f.id)
     if (typeof f.name !== 'string') errors.push(`${p}.name must be a string`)
     if (f.type !== 'page' && f.type !== 'design') errors.push(`${p}.type must be "page" or "design"`)
+    if (f.type === 'page' && typeof f.url !== 'string') errors.push(`${p}.url is required for page frames`)
     if (f.source !== null) {
       const s = f.source as Record<string, unknown> | undefined
       if (typeof s !== 'object' || s === null || typeof s.file !== 'string') errors.push(`${p}.source must be null or { file }`)

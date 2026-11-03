@@ -75,7 +75,7 @@ function render(canvas: Canvas) {
 }
 
 function sig(f: Frame) {
-  return JSON.stringify([f.type, f.source, f.scenario, f.width === 'hug', f.height === 'hug'])
+  return JSON.stringify([f.type, f.url, f.source, f.scenario, f.width === 'hug', f.height === 'hug'])
 }
 
 function upsertFrame(f: Frame) {
@@ -104,17 +104,31 @@ function createFrame(f: Frame): Entry {
   const iframe = document.createElement('iframe')
   iframe.dataset.frameId = f.id
   iframe.style.border = '0'
-  const hug = f.width === 'hug' || f.height === 'hug'
+  const hug = f.type === 'design' && (f.width === 'hug' || f.height === 'hug')
   // Hug frames start large so content is measured unconstrained, then shrink on `size`.
-  if (f.width === 'hug') iframe.style.width = '2000px'
-  if (f.height === 'hug') iframe.style.height = '2000px'
-  iframe.src = '/preview.html'
+  if (hug && f.width === 'hug') iframe.style.width = '2000px'
+  if (hug && f.height === 'hug') iframe.style.height = '2000px'
+  if (f.type === 'page') {
+    // Page Frame: a real browsing context at the given URL; flag pages that refuse embedding.
+    iframe.src = f.url!
+    void fetch('/__moorp/frame-check?url=' + encodeURIComponent(f.url!))
+      .then((r) => r.json() as Promise<{ embeddable: boolean; reason: string }>)
+      .then((r) => {
+        if (r.embeddable) return
+        const note = document.createElement('div')
+        note.className = 'moorp-blocked'
+        note.textContent = `Cannot embed ${f.url}: ${r.reason}`
+        note.style.cssText = 'position:absolute;inset:20px 0 0 0;background:#fef2f2;color:#991b1b;font:12px system-ui;padding:8px;box-sizing:border-box'
+        box.append(note)
+      })
+      .catch(() => {})
+  } else iframe.src = '/preview.html'
   iframe.addEventListener('load', () => {
-    if (f.source) iframe.contentWindow!.postMessage({ protocol: PROTOCOL, type: 'init', frameId: f.id, source: f.source, scenario: f.scenario, hug }, '*')
+    if (f.type === 'design' && f.source) iframe.contentWindow!.postMessage({ protocol: PROTOCOL, type: 'init', frameId: f.id, source: f.source, scenario: f.scenario, hug }, '*')
   })
   box.append(bar, iframe)
   world.append(box)
-  const entry = { box, bar, iframe, signature: sig(f), hugW: f.width === 'hug', hugH: f.height === 'hug' }
+  const entry = { box, bar, iframe, signature: sig(f), hugW: hug && f.width === 'hug', hugH: hug && f.height === 'hug' }
   frames.set(f.id, entry)
   return entry
 }
