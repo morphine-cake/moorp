@@ -91,3 +91,12 @@ input:focus, select:focus, textarea:focus, button:focus-visible { outline: 2px s
 
 .error-text { color: var(--danger); }
 .canvas-tools button { white-space: nowrap; }
+
+.app.zen { grid-template-columns: 0 1fr 0; }
+.app.zen .sidebar, .app.zen .panel { visibility: hidden; border: 0; }
+.host.panning, .host.panning * { cursor: grab !important; }
+.host.panning iframe { pointer-events: none; }
+.canvas-tools button:disabled { opacity: 0.4; cursor: default; border-color: var(--line); }
+.keys { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; margin: 0; font-size: 12px; }
+.keys dt { color: var(--muted); }
+.keys dd { margin: 0; text-align: right; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }

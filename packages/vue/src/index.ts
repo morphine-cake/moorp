@@ -114,11 +114,28 @@ export function startPreview({ load, setup, root }: PreviewOptions): () => void 
     e.preventDefault()
     post({ type: 'zoom', deltaY: e.deltaY, clientX: e.clientX, clientY: e.clientY } as never)
   }
+  // Canvas shortcuts must keep working after a click inside a component moves focus into this iframe.
+  // Forward only keys a component is unlikely to need, and never while the user is typing.
+  const onKey = (e: KeyboardEvent) => {
+    const t = e.target as HTMLElement | null
+    if (t?.closest?.('input, textarea, select, [contenteditable="true"]')) return
+    const mod = e.metaKey || e.ctrlKey
+    const idle = t === document.body || t === document.documentElement
+    const forward =
+      (mod && !e.altKey && ['z', 'y', 'd', 'r', '=', '+', '-', '\\'].includes(e.key.toLowerCase())) ||
+      (e.shiftKey && !mod && ['Digit0', 'Digit1', 'Digit2'].includes(e.code)) ||
+      (idle && ['Escape', 'Delete', 'Backspace'].includes(e.key))
+    if (!forward) return
+    e.preventDefault() // otherwise the browser reloads, bookmarks or zooms the page
+    post({ type: 'key', key: e.key, code: e.code, metaKey: e.metaKey, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, altKey: e.altKey } as never)
+  }
   window.addEventListener('message', onMessage)
   window.addEventListener('wheel', onWheel, { passive: false })
+  window.addEventListener('keydown', onKey)
   return () => {
     window.removeEventListener('message', onMessage)
     window.removeEventListener('wheel', onWheel)
+    window.removeEventListener('keydown', onKey)
     observer.disconnect()
     app?.unmount()
   }

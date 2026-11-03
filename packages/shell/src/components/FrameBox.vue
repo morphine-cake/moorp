@@ -2,7 +2,8 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { PROTOCOL, isProtocolMessage, type Frame } from '@moorp/core'
 import { api, checkFrame } from '../api'
-import { commit, copyFrame, patchFrame, removeFrame, state } from '../store'
+import { beginGesture, commit, copyFrame, duplicateInPlace, patchFrame, removeFrame, runAction, state } from '../store'
+import { matchShortcut } from '../shortcuts.ts'
 
 const props = defineProps<{ frame: Frame }>()
 const emit = defineEmits<{ zoom: [clientX: number, clientY: number, deltaY: number] }>()
@@ -81,7 +82,11 @@ function onMessage(e: MessageEvent) {
     if (hugW.value || hugH.value) measured.value = { w: Math.ceil(m.width), h: Math.ceil(m.height) }
   } else if (m.type === 'error') previewError.value = m.message
   else if (m.type === 'ready') previewError.value = ''
-  else if (m.type === 'zoom') {
+  else if (m.type === 'key') {
+    // A shortcut pressed while a component had focus: handle it exactly like one pressed in the shell.
+    const action = matchShortcut(m)
+    if (action) runAction(action)
+  } else if (m.type === 'zoom') {
     // Iframe coordinates -> screen coordinates: offset by the iframe's rect plus the canvas scale.
     const r = iframe.value!.getBoundingClientRect()
     emit('zoom', r.left + m.clientX * state.view.s, r.top + m.clientY * state.view.s, m.deltaY)
@@ -92,16 +97,22 @@ onUnmounted(() => window.removeEventListener('message', onMessage))
 
 // ---- drag to move (toolbar) and resize (handles) ----------------------------------------------
 
-function drag(e: PointerEvent, onMove: (dx: number, dy: number) => void) {
+/** Pointer gesture on this frame. `onMove` gets the total movement since the pointer went down, in canvas pixels. */
+function drag(e: PointerEvent, onMove: (total: { x: number; y: number }, ev: PointerEvent) => void, onStart?: () => void) {
   const el = e.currentTarget as HTMLElement
   el.setPointerCapture(e.pointerId)
   state.dragging = true
-  let lx = e.clientX
-  let ly = e.clientY
+  const x0 = e.clientX
+  const y0 = e.clientY
+  let started = false
   const move = (m: PointerEvent) => {
-    onMove((m.clientX - lx) / state.view.s, (m.clientY - ly) / state.view.s)
-    lx = m.clientX
-    ly = m.clientY
+    // The first real movement opens the undo step (a plain click only selects), and the whole drag is that one step.
+    if (!started) {
+      started = true
+      beginGesture()
+      onStart?.()
+    }
+    onMove({ x: (m.clientX - x0) / state.view.s, y: (m.clientY - y0) / state.view.s }, m)
   }
   const up = () => {
     state.dragging = false
@@ -115,18 +126,36 @@ function drag(e: PointerEvent, onMove: (dx: number, dy: number) => void) {
 
 function startMove(e: PointerEvent) {
   state.selected = props.frame.id
-  drag(e, (dx, dy) => patchFrame(props.frame.id, { x: Math.round(props.frame.x + dx), y: Math.round(props.frame.y + dy) }, { save: false }))
+  const { x: startX, y: startY, id } = props.frame
+  drag(
+    e,
+    (t, ev) => {
+      let { x, y } = t
+      // Shift (Figma): constrain to the dominant axis.
+      if (ev.shiftKey) Math.abs(x) >= Math.abs(y) ? (y = 0) : (x = 0)
+      patchFrame(id, { x: Math.round(startX + x), y: Math.round(startY + y) }, { save: false })
+    },
+    // Alt (Figma): leave a copy behind and keep dragging the original.
+    e.altKey ? () => duplicateInPlace(id) : undefined,
+  )
 }
 
 function startResize(e: PointerEvent, axis: 'x' | 'y' | 'xy') {
   state.selected = props.frame.id
   // Resizing a hug frame turns that dimension into a fixed one, starting from the size it has now.
-  let w = width.value
-  let h = height.value
-  drag(e, (dx, dy) => {
-    if (axis !== 'y') w = Math.max(40, w + dx)
-    if (axis !== 'x') h = Math.max(40, h + dy)
-    patchFrame(props.frame.id, { ...(axis !== 'y' ? { width: Math.round(w) } : {}), ...(axis !== 'x' ? { height: Math.round(h) } : {}) }, { save: false })
+  const w0 = width.value
+  const h0 = height.value
+  const id = props.frame.id
+  drag(e, (t, ev) => {
+    let w = Math.max(40, w0 + (axis !== 'y' ? t.x : 0))
+    let h = Math.max(40, h0 + (axis !== 'x' ? t.y : 0))
+    // Shift on the corner (Figma): keep the proportions.
+    if (ev.shiftKey && axis === 'xy') {
+      const ratio = w0 / h0
+      if (Math.abs(t.x) >= Math.abs(t.y) * ratio) h = Math.max(40, w / ratio)
+      else w = Math.max(40, h * ratio)
+    }
+    patchFrame(id, { ...(axis !== 'y' ? { width: Math.round(w) } : {}), ...(axis !== 'x' ? { height: Math.round(h) } : {}) }, { save: false })
   })
 }
 
@@ -142,6 +171,15 @@ async function startRename() {
   nameInput.value?.focus()
   nameInput.value?.select()
 }
+watch(
+  () => state.renaming,
+  (id) => {
+    if (id === props.frame.id) {
+      state.renaming = null
+      void startRename()
+    }
+  },
+)
 function finishRename(apply: boolean) {
   if (!renaming.value) return
   renaming.value = false

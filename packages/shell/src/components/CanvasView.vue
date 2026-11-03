@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { addFrame, fitFrames, state } from '../store'
+import { addFrame, fitFrames, redo, state, undo } from '../store'
 import FrameBox from './FrameBox.vue'
 
 const MIN_ZOOM = 0.02
@@ -41,8 +41,10 @@ function onWheel(e: WheelEvent) {
 
 // Drag on empty canvas pans; a click on it clears the selection.
 function onPointerDown(e: PointerEvent) {
-  if (e.target !== host.value && !(e.target as HTMLElement).classList.contains('world')) return
-  state.selected = null
+  const onBackground = e.target === host.value || (e.target as HTMLElement).classList.contains('world')
+  // Space held (Figma's hand tool): pan from anywhere, including over a frame.
+  if (!onBackground && !state.spaceDown) return
+  if (onBackground && !state.spaceDown) state.selected = null
   const el = host.value!
   el.setPointerCapture(e.pointerId)
   let lx = e.clientX
@@ -78,7 +80,7 @@ onUnmounted(() => observer?.disconnect())
 </script>
 
 <template>
-  <div ref="host" class="host" :class="{ dragging: state.dragging }" @wheel="onWheel" @pointerdown="onPointerDown">
+  <div ref="host" class="host" :class="{ dragging: state.dragging, panning: state.spaceDown }" @wheel="onWheel" @pointerdown="onPointerDown">
     <div
       class="world"
       :style="{ transform: `translate(${state.view.tx}px, ${state.view.ty}px) scale(${state.view.s})`, '--s': state.view.s }"
@@ -87,9 +89,11 @@ onUnmounted(() => observer?.disconnect())
     </div>
 
     <div class="canvas-tools">
-      <button @click="addFrame('design')">+ Design frame</button>
+      <button title="Add a design frame (F)" @click="addFrame('design')">+ Design frame</button>
       <button @click="addFrame('page')">+ Page frame</button>
-      <button title="Zoom to fit all frames" @click="fitFrames()">Fit</button>
+      <button title="Zoom to fit all frames (Shift+1)" @click="fitFrames()">Fit</button>
+      <button title="Undo (Ctrl/Cmd+Z)" :disabled="!state.canUndo" @click="undo">Undo</button>
+      <button title="Redo (Shift+Ctrl/Cmd+Z)" :disabled="!state.canRedo" @click="redo">Redo</button>
       <span class="zoom">{{ Math.round(state.view.s * 100) }}%</span>
     </div>
 

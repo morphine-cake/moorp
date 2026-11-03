@@ -188,6 +188,25 @@ const padding = computed(() => frame.value?.presentation?.padding ?? 0)
         <p class="hint">Click a frame's title bar to select it. Drag the title bar to move it, and drag its edges to resize.</p>
         <button @click="resetView">Reset view</button>
       </section>
+      <section>
+        <h4>Shortcuts (as in Figma)</h4>
+        <dl class="keys">
+          <dt>Undo, redo</dt><dd>⌘Z, ⇧⌘Z</dd>
+          <dt>Duplicate</dt><dd>⌘D, or Alt+drag</dd>
+          <dt>Copy, paste</dt><dd>⌘C, ⌘V</dd>
+          <dt>Rename</dt><dd>⌘R</dd>
+          <dt>Delete, deselect</dt><dd>⌫, Esc</dd>
+          <dt>Nudge 1 / 10 px</dt><dd>Arrows, ⇧ Arrows</dd>
+          <dt>Next frame</dt><dd>Tab, ⇧Tab</dd>
+          <dt>Fit / selection / 100%</dt><dd>⇧1, ⇧2, ⇧0</dd>
+          <dt>Zoom in, out</dt><dd>⌘+, ⌘−</dd>
+          <dt>Pan</dt><dd>Space+drag</dd>
+          <dt>Constrain, keep ratio</dt><dd>⇧ while dragging</dd>
+          <dt>Add design frame</dt><dd>F</dd>
+          <dt>Hide panels</dt><dd>⌘\</dd>
+        </dl>
+        <p class="hint">Ctrl instead of ⌘ on Windows and Linux.</p>
+      </section>
       <section class="row-actions">
         <button
           class="danger"

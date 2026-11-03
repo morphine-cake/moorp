@@ -1,6 +1,8 @@
 import { computed, reactive, watch } from 'vue'
 import { duplicateFrame, isValidCanvasPath, nextFrameId, type Canvas, type Frame, type Presentation } from '@moorp/core'
 import { api, subscribe, type Info } from './api'
+import type { Action } from './shortcuts.ts'
+import { createUndoStack } from './undo.ts'
 
 type View = { tx: number; ty: number; s: number }
 
@@ -14,12 +16,56 @@ export const state = reactive({
   viewport: { w: 800, h: 600 },
   /** True while a frame is being moved or resized, so iframes stop swallowing the pointer. */
   dragging: false,
+  /** Space is held: dragging anywhere pans the canvas (Figma's hand tool). */
+  spaceDown: false,
+  /** Panels hidden (Figma's Cmd+\). */
+  hideUI: false,
+  /** A frame id whose title should switch to rename mode (Cmd+R). */
+  renaming: null as string | null,
+  canUndo: false,
+  canRedo: false,
   error: '',
 })
 
 export const selectedFrame = computed(() => state.canvas?.frames.find((f) => f.id === state.selected) ?? null)
 
 const fail = (e: unknown) => (state.error = e instanceof Error ? e.message : String(e))
+
+// ---- undo / redo -----------------------------------------------------------------------------
+
+// Snapshots are the canvas as JSON text; every edit records the state before it. Edits that arrive
+// from outside (a file changed by another tool) or switching canvases clear the history, so an undo
+// can never bring back a stale copy over someone else's change.
+const undoStack = createUndoStack<string>()
+const syncHistory = () => {
+  state.canUndo = undoStack.canUndo
+  state.canRedo = undoStack.canRedo
+}
+function snapshot() {
+  if (!state.canvas) return
+  undoStack.record(JSON.stringify(state.canvas))
+  syncHistory()
+}
+/** Call once when a drag or resize starts: the whole gesture becomes a single undo step. */
+export function beginGesture() {
+  snapshot()
+}
+function applySnapshot(json: string) {
+  state.canvas = JSON.parse(json) as Canvas
+  if (state.selected && !state.canvas.frames.some((f) => f.id === state.selected)) state.selected = null
+  syncHistory()
+  scheduleSave()
+}
+export function undo() {
+  if (!state.canvas) return
+  const previous = undoStack.undo(JSON.stringify(state.canvas))
+  if (previous !== undefined) applySnapshot(previous)
+}
+export function redo() {
+  if (!state.canvas) return
+  const next = undoStack.redo(JSON.stringify(state.canvas))
+  if (next !== undefined) applySnapshot(next)
+}
 
 // ---- persistence -----------------------------------------------------------------------------
 
@@ -79,6 +125,8 @@ async function loadCanvas(path: string) {
   if (state.dragging || saveTimer !== undefined || inflight > 0) return
   lastSaved = incoming
   state.canvas = canvas
+  undoStack.clear()
+  syncHistory()
   if (state.selected && !canvas.frames.some((f) => f.id === state.selected)) state.selected = null
 }
 
@@ -101,6 +149,8 @@ export async function openCanvas(path: string | null) {
   state.selected = null
   state.canvas = null
   lastSaved = ''
+  undoStack.clear()
+  syncHistory()
   history.replaceState(null, '', path ? `#/${path}` : '#/')
   if (!path) return
   Object.assign(state.view, readView(path))
@@ -181,8 +231,9 @@ export async function deleteCanvas(path: string) {
 
 // ---- frame operations (canvas metadata only: source files are never touched) ------------------
 
-function mutate(fn: (c: Canvas) => void, { immediate = true } = {}) {
+function mutate(fn: (c: Canvas) => void, { immediate = true, history: record = true } = {}) {
   if (!state.canvas) return
+  if (record) snapshot()
   fn(state.canvas)
   immediate ? scheduleSave() : undefined
 }
@@ -233,7 +284,93 @@ export function patchFrame(id: string, patch: Partial<Omit<Frame, 'id' | 'presen
       if (Object.keys(merged).length) f.presentation = merged
       else delete f.presentation
     }
-  }, { immediate: persist })
+  }, { immediate: persist, history: persist })
+}
+
+/** Alt+drag (Figma): leave a copy where the frame was, then keep dragging the original. Part of the gesture's undo step. */
+export function duplicateInPlace(id: string) {
+  mutate((c) => {
+    const original = c.frames.find((f) => f.id === id)
+    const copy = duplicateFrame(c, id)
+    if (original && copy) c.frames.push({ ...copy, x: original.x, y: original.y })
+  }, { history: false })
+}
+
+// In-memory clipboard: a frame reference (never source files). Survives switching canvases, so a frame can be pasted elsewhere.
+let clipboard: Frame | null = null
+let pasteCount = 0
+
+export function copySelected() {
+  const f = selectedFrame.value
+  if (!f) return
+  clipboard = JSON.parse(JSON.stringify(f)) as Frame
+  pasteCount = 0
+}
+
+export function pasteFrame() {
+  if (!clipboard || !state.canvas) return
+  const source = clipboard
+  pasteCount++
+  mutate((c) => {
+    const frame: Frame = { ...(JSON.parse(JSON.stringify(source)) as Frame), id: nextFrameId(c), x: source.x + 40 * pasteCount, y: source.y + 40 * pasteCount }
+    c.frames.push(frame)
+    state.selected = frame.id
+  })
+}
+
+let lastNudge = 0
+/** Arrow keys: held or repeated presses within 600 ms are one undo step. */
+export function nudgeSelected(dx: number, dy: number) {
+  const f = selectedFrame.value
+  if (!f) return
+  const now = Date.now()
+  if (now - lastNudge > 600) snapshot()
+  lastNudge = now
+  mutate(() => {
+    f.x += dx
+    f.y += dy
+  }, { history: false })
+}
+
+export function cycleSelection(direction: 1 | -1) {
+  const frames = state.canvas?.frames
+  if (!frames?.length) return
+  const i = frames.findIndex((f) => f.id === state.selected)
+  state.selected = frames[(i + direction + frames.length) % frames.length]!.id
+}
+
+/** Zoom around the middle of the canvas area (keyboard zoom), keeping what is there in place. */
+function setScale(next: number) {
+  const { w, h } = state.viewport
+  const v = state.view
+  const s = Math.min(4, Math.max(0.02, next))
+  v.tx = w / 2 - ((w / 2 - v.tx) * s) / v.s
+  v.ty = h / 2 - ((h / 2 - v.ty) * s) / v.s
+  v.s = s
+}
+
+/** Run a shortcut matched by `matchShortcut`. */
+export function runAction(a: Action) {
+  switch (a.type) {
+    case 'undo': return undo()
+    case 'redo': return redo()
+    case 'duplicate': return state.selected ? copyFrame(state.selected) : undefined
+    case 'copy': return copySelected()
+    case 'paste': return pasteFrame()
+    case 'rename': return void (state.renaming = state.selected)
+    case 'delete': return state.selected ? removeFrame(state.selected) : undefined
+    case 'deselect': return void (state.selected = null)
+    case 'nudge': return nudgeSelected(a.dx, a.dy)
+    case 'next': return cycleSelection(1)
+    case 'previous': return cycleSelection(-1)
+    case 'zoomFit': return fitFrames()
+    case 'zoomSelection': return state.selected ? fitFrames(state.selected) : fitFrames()
+    case 'zoom100': return setScale(1)
+    case 'zoomIn': return setScale(state.view.s * 1.25)
+    case 'zoomOut': return setScale(state.view.s / 1.25)
+    case 'toggleUI': return void (state.hideUI = !state.hideUI)
+    case 'addFrame': return addFrame('design')
+  }
 }
 
 /** Zoom and pan so one frame (or all frames) fills the canvas area, measured from what is on screen. */
