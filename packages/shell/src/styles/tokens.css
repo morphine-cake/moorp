@@ -1,0 +1,1412 @@
+/*
+ * Design tokens, copied from the codeva design system (apps/web/app/globals.css) and kept in sync by hand:
+ * LAYER 1 primitives, LAYER 2 the Tailwind theme bridge, the type scale and token utilities, and
+ * LAYER 3 semantic tokens for light (:root) and dark (.dark). Names are identical, so a component
+ * written for codeva ports here by copying its class strings.
+ */
+
+@custom-variant dark (&:is(.dark *));
+
+/* ==========================================================================
+   LAYER 1: PRIMITIVE COLORS
+   Custom neutral palette from Figma + Tailwind accent colors used as-is
+   ========================================================================== */
+
+:root {
+  /* ── Neutral Primitives (from Figma) ── */
+  --neutral-0: #ffffff;
+  --neutral-50: #fafafa;
+  --neutral-100: #f4f4f5;
+  --neutral-200: #e4e4e7;
+  --neutral-300: #d4d4d8;
+  --neutral-400: #a1a1aa;
+  --neutral-500: #71717a;
+  --neutral-600: #52525b;
+  --neutral-700: #3f3f46;
+  --neutral-800: #27272a;
+  --neutral-900: #18181b;
+  --neutral-950: #111112;
+  --neutral-1000: #09090b;
+}
+
+/* ==========================================================================
+   LAYER 2: TAILWIND THEME
+   Expose primitives + semantic tokens as Tailwind utilities
+   ========================================================================== */
+
+@theme inline {
+  /* ── Neutral palette utilities (bg-neutral-500, text-neutral-200, etc.) ── */
+  --color-neutral-0: var(--neutral-0);
+  --color-neutral-50: var(--neutral-50);
+  --color-neutral-100: var(--neutral-100);
+  --color-neutral-200: var(--neutral-200);
+  --color-neutral-300: var(--neutral-300);
+  --color-neutral-400: var(--neutral-400);
+  --color-neutral-500: var(--neutral-500);
+  --color-neutral-600: var(--neutral-600);
+  --color-neutral-700: var(--neutral-700);
+  --color-neutral-800: var(--neutral-800);
+  --color-neutral-900: var(--neutral-900);
+  --color-neutral-950: var(--neutral-950);
+  --color-neutral-1000: var(--neutral-1000);
+
+  /* ── Semantic fg/bg/border token utilities (scalable naming) ── */
+  --color-fg-base: var(--fg-base);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-fg-ghost: var(--fg-ghost);
+  --color-fg-placeholder: var(--fg-placeholder);
+  --color-bg-base: var(--bg-base);
+  --color-bg-light: var(--bg-light);
+  --color-bg-strong: var(--bg-strong);
+  --color-bg-stronger: var(--bg-stronger);
+  --color-bg-hover: var(--bg-hover);
+  --color-bg-selected: var(--bg-selected);
+  --color-bg-card: var(--bg-card);
+  --color-bg-menu: var(--bg-menu);
+  --color-border-base: var(--border-base);
+  --color-border-frame: var(--border-frame);
+  --color-border-strong: var(--border-strong);
+  --color-border-transparent: var(--border-transparent);
+
+  /* ── Shadcn semantic tokens (existing, bridged) ── */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-disabled: var(--btn-primary-bg-disable);
+  --color-primary-foreground-disabled: var(--btn-primary-fg-disable);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-hover: var(--btn-secondary-bg-hover);
+  --color-secondary-disabled: var(--btn-secondary-bg-disable);
+  --color-secondary-foreground-disabled: var(--btn-secondary-fg-disable);
+  --color-secondary-border: var(--btn-secondary-border);
+  --color-outline: var(--btn-outline-bg);
+  --color-outline-foreground: var(--btn-outline-fg);
+  --color-outline-hover: var(--btn-outline-bg-hover);
+  --color-outline-disabled: var(--btn-outline-bg-disable);
+  --color-outline-foreground-disabled: var(--btn-outline-fg-disable);
+  --color-outline-border: var(--btn-outline-border);
+  --color-outline-border-disabled: var(--btn-outline-border-disable);
+  --color-ghost: var(--btn-ghost-bg);
+  --color-ghost-foreground: var(--btn-ghost-fg);
+  --color-ghost-hover: var(--btn-ghost-bg-hover);
+  --color-ghost-disabled: var(--btn-ghost-bg-disable);
+  --color-ghost-foreground-disabled: var(--btn-ghost-fg-disable);
+  --color-ghost-border: var(--btn-ghost-border);
+  --color-destructive-bg: var(--btn-destructive-bg);
+  --color-destructive-bg-hover: var(--btn-destructive-bg-hover);
+  --color-destructive-bg-disabled: var(--btn-destructive-bg-disable);
+  --color-destructive-foreground: var(--btn-destructive-fg);
+  --color-destructive-foreground-disabled: var(--btn-destructive-fg-disable);
+  --color-destructive-border: var(--btn-destructive-border);
+
+  /* ── Button tokens (btn-* for button component only) ── */
+  --color-btn-primary: var(--btn-primary-bg);
+  --color-btn-primary-foreground: var(--btn-primary-fg);
+  --color-btn-primary-hover: var(--btn-primary-bg-hover);
+  --color-btn-primary-disabled: var(--btn-primary-bg-disable);
+  --color-btn-primary-foreground-disabled: var(--btn-primary-fg-disable);
+  --color-btn-secondary: var(--btn-secondary-bg);
+  --color-btn-secondary-foreground: var(--btn-secondary-fg);
+  --color-btn-secondary-hover: var(--btn-secondary-bg-hover);
+  --color-btn-secondary-disabled: var(--btn-secondary-bg-disable);
+  --color-btn-secondary-foreground-disabled: var(--btn-secondary-fg-disable);
+  --color-btn-secondary-border: var(--btn-secondary-border);
+  --color-btn-outline: var(--btn-outline-bg);
+  --color-btn-outline-foreground: var(--btn-outline-fg);
+  --color-btn-outline-hover: var(--btn-outline-bg-hover);
+  --color-btn-outline-disabled: var(--btn-outline-bg-disable);
+  --color-btn-outline-foreground-disabled: var(--btn-outline-fg-disable);
+  --color-btn-outline-border: var(--btn-outline-border);
+  --color-btn-outline-border-disabled: var(--btn-outline-border-disable);
+  --color-btn-ghost: var(--btn-ghost-bg);
+  --color-btn-ghost-foreground: var(--btn-ghost-fg);
+  --color-btn-ghost-hover: var(--btn-ghost-bg-hover);
+  --color-btn-ghost-disabled: var(--btn-ghost-bg-disable);
+  --color-btn-ghost-foreground-disabled: var(--btn-ghost-fg-disable);
+  --color-btn-ghost-border: var(--btn-ghost-border);
+  --color-btn-destructive: var(--btn-destructive-bg);
+  --color-btn-destructive-foreground: var(--btn-destructive-fg);
+  --color-btn-destructive-hover: var(--btn-destructive-bg-hover);
+  --color-btn-destructive-disabled: var(--btn-destructive-bg-disable);
+  --color-btn-destructive-foreground-disabled: var(
+    --btn-destructive-fg-disable
+  );
+  --color-btn-destructive-border: var(--btn-destructive-border);
+
+  /* ── Badge tokens ── */
+  --color-badge-bg-neutral: var(--badge-bg-neutral);
+  --color-badge-fg-neutral: var(--badge-fg-neutral);
+  --color-badge-bg-contrast: var(--badge-bg-contrast);
+  --color-badge-fg-contrast: var(--badge-fg-contrast);
+  --color-badge-fg-outline: var(--badge-fg-outline);
+  --color-badge-border-outline: var(--badge-border-outline);
+  --color-badge-bg-success: var(--badge-bg-success);
+  --color-badge-fg-success: var(--badge-fg-success);
+  --color-badge-bg-error: var(--badge-bg-error);
+  --color-badge-fg-error: var(--badge-fg-error);
+  --color-badge-bg-warning: var(--badge-bg-warning);
+  --color-badge-fg-warning: var(--badge-fg-warning);
+  --color-badge-bg-info: var(--badge-bg-info);
+  --color-badge-fg-info: var(--badge-fg-info);
+  --color-badge-bg-indigo: var(--badge-bg-indigo);
+  --color-badge-fg-indigo: var(--badge-fg-indigo);
+  --color-badge-bg-teal: var(--badge-bg-teal);
+  --color-badge-fg-teal: var(--badge-fg-teal);
+  --color-badge-bg-pink: var(--badge-bg-pink);
+  --color-badge-fg-pink: var(--badge-fg-pink);
+  --color-badge-bg-lime: var(--badge-bg-lime);
+  --color-badge-fg-lime: var(--badge-fg-lime);
+  --color-badge-bg-fuchsia: var(--badge-bg-fuchsia);
+  --color-badge-fg-fuchsia: var(--badge-fg-fuchsia);
+  --color-badge-bg-cyan: var(--badge-bg-cyan);
+  --color-badge-fg-cyan: var(--badge-fg-cyan);
+  --color-badge-bg-violet: var(--badge-bg-violet);
+  --color-badge-fg-violet: var(--badge-fg-violet);
+  --color-badge-bg-rose: var(--badge-bg-rose);
+  --color-badge-fg-rose: var(--badge-fg-rose);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* ── field (input / text field) ── */
+  --color-field-bg: var(--field-bg);
+  --color-field-bg-hover: var(--field-bg-hover);
+  --color-field-bg-focus: var(--field-bg-focus);
+  --color-field-bg-error: var(--field-bg-error);
+  --color-field-bg-disable: var(--field-bg-disable);
+  --color-field-fg: var(--field-fg);
+  --color-field-fg-placeholder: var(--field-fg-placeholder);
+  --color-field-fg-disable: var(--field-fg-disable);
+  --color-field-border: var(--field-border);
+  --color-field-border-focus: var(--field-border-focus);
+  --color-field-border-error: var(--field-border-error);
+  --color-field-border-disable: var(--field-border-disable);
+  --color-field-shadow-focus: var(--field-shadow-focus);
+  --color-field-shadow-error: var(--field-shadow-error);
+  --color-field-bg-selected: var(--field-bg-selected);
+  --color-field-fg-subtle: var(--field-fg-subtle);
+  --color-field-fg-ghost: var(--field-fg-ghost);
+
+  /* ── Fonts ── */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-body: var(--font-inter);
+
+  /* ── Effect / elevation shadows ── */
+  --shadow-elevation-card: var(--elevation-card);
+  --shadow-elevation-frame: var(--elevation-frame);
+  --shadow-elevation-menu: var(--elevation-menu);
+  --shadow-elevation-modal: var(--elevation-modal);
+  --shadow-effect-button-primary: var(--effect-button-primary);
+  --shadow-effect-field-focus: var(--effect-field-focus);
+  --shadow-effect-field-error: var(--effect-field-error);
+  --shadow-effect-nav-item: var(--effect-nav-item);
+}
+
+/* ==========================================================================
+   FIGMA TYPOGRAPHY (single-class system)
+   Inter: 400 default, 500 semi-bold, 600 bold. One class = size + line-height + weight.
+   ========================================================================== */
+
+/* Heading (H0–H6): font-body, weight 600 */
+@utility type-heading-0 {
+  font-family: var(--font-body);
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 600;
+}
+@utility type-heading-1 {
+  font-family: var(--font-body);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+}
+@utility type-heading-2 {
+  font-family: var(--font-body);
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: 600;
+}
+@utility type-heading-3 {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 600;
+}
+@utility type-heading-4 {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+@utility type-heading-5 {
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+}
+@utility type-heading-6 {
+  font-family: var(--font-body);
+  font-size: 10px;
+  line-height: 16px;
+  font-weight: 600;
+}
+
+@utility type-body-m {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+@utility type-body-m-semibold {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+@utility type-body-m-bold {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+@utility type-body-m-link {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@utility type-body-s {
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+}
+@utility type-body-s-semibold {
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+@utility type-body-s-bold {
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+}
+@utility type-body-s-link {
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@utility type-body-xs {
+  font-family: var(--font-body);
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 400;
+}
+@utility type-body-xs-semibold {
+  font-family: var(--font-body);
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 500;
+}
+@utility type-body-xs-bold {
+  font-family: var(--font-body);
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 600;
+}
+@utility type-body-xs-link {
+  font-family: var(--font-body);
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 400;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@utility type-code-m {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+@utility type-code-m-bold {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 600;
+}
+
+@utility type-code-s {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+}
+@utility type-code-s-bold {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+}
+
+@utility type-code-xs {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 400;
+}
+@utility type-code-xs-bold {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 600;
+}
+
+/* Semantic fg/bg/border direct utilities */
+@utility fg-base {
+  color: var(--fg-base);
+}
+@utility fg-subtle {
+  color: var(--fg-subtle);
+}
+@utility fg-ghost {
+  color: var(--fg-ghost);
+}
+@utility fg-placeholder {
+  color: var(--fg-placeholder);
+}
+@utility fg-base-90 {
+  color: color-mix(in srgb, var(--fg-base) 90%, transparent);
+}
+@utility fg-ghost-20 {
+  color: color-mix(in srgb, var(--fg-ghost) 20%, transparent);
+}
+@utility fg-ghost-40 {
+  color: color-mix(in srgb, var(--fg-ghost) 40%, transparent);
+}
+@utility fg-ghost-50 {
+  color: color-mix(in srgb, var(--fg-ghost) 50%, transparent);
+}
+@utility fg-ghost-60 {
+  color: color-mix(in srgb, var(--fg-ghost) 60%, transparent);
+}
+@utility bg-base {
+  background-color: var(--bg-base);
+}
+@utility bg-light {
+  background-color: var(--bg-light);
+}
+@utility bg-strong {
+  background-color: var(--bg-strong);
+}
+@utility bg-stronger {
+  background-color: var(--bg-stronger);
+}
+@utility bg-hover {
+  background-color: var(--bg-hover);
+}
+@utility bg-selected {
+  background-color: var(--bg-selected);
+}
+@utility bg-card {
+  background-color: var(--bg-card);
+}
+@utility bg-menu {
+  background-color: var(--bg-menu);
+}
+@utility border-base {
+  border-color: var(--border-base);
+}
+@utility border-frame {
+  border-color: var(--border-frame);
+}
+@utility border-strong {
+  border-color: var(--border-strong);
+}
+@utility border-transparent {
+  border-color: var(--border-transparent);
+}
+
+/* Semantic status + utility colors */
+@utility fg-success {
+  color: var(--status-success-fg);
+}
+@utility fg-success-strong {
+  color: var(--status-success-fg-strong);
+}
+@utility bg-success-soft {
+  background-color: var(--status-success-bg-soft);
+}
+@utility bg-success-subtle {
+  background-color: var(--status-success-bg-subtle);
+}
+@utility bg-success {
+  background-color: var(--status-success-fg);
+}
+@utility border-success-soft {
+  border-color: var(--status-success-border-soft);
+}
+
+@utility fg-error {
+  color: var(--status-error-fg);
+}
+@utility fg-error-strong {
+  color: var(--status-error-fg-strong);
+}
+@utility bg-error-soft {
+  background-color: var(--status-error-bg-soft);
+}
+@utility bg-error-subtle {
+  background-color: var(--status-error-bg-subtle);
+}
+@utility bg-error {
+  background-color: var(--status-error-fg);
+}
+@utility border-error-soft {
+  border-color: var(--status-error-border-soft);
+}
+
+@utility fg-warning {
+  color: var(--status-warning-fg);
+}
+@utility fg-warning-strong {
+  color: var(--status-warning-fg-strong);
+}
+@utility bg-warning-soft {
+  background-color: var(--status-warning-bg-soft);
+}
+@utility bg-warning-subtle {
+  background-color: var(--status-warning-bg-subtle);
+}
+@utility bg-warning {
+  background-color: var(--status-warning-fg);
+}
+@utility border-warning-soft {
+  border-color: var(--status-warning-border-soft);
+}
+
+@utility fg-info {
+  color: var(--status-info-fg);
+}
+@utility fg-info-strong {
+  color: var(--status-info-fg-strong);
+}
+@utility bg-info-soft {
+  background-color: var(--status-info-bg-soft);
+}
+@utility bg-info-subtle {
+  background-color: var(--status-info-bg-subtle);
+}
+@utility bg-info {
+  background-color: var(--status-info-fg);
+}
+@utility border-info-soft {
+  border-color: var(--status-info-border-soft);
+}
+
+@utility fg-accent {
+  color: var(--status-accent-fg);
+}
+@utility fg-accent-strong {
+  color: var(--status-accent-fg-strong);
+}
+@utility bg-accent-soft {
+  background-color: var(--status-accent-bg-soft);
+}
+@utility bg-accent {
+  background-color: var(--status-accent-fg);
+}
+@utility border-accent-soft {
+  border-color: var(--status-accent-border-soft);
+}
+
+@utility fg-inverse {
+  color: var(--inverse-fg);
+}
+@utility fg-inverse-muted {
+  color: var(--inverse-fg-muted);
+}
+@utility bg-inverse {
+  background-color: var(--inverse-bg);
+}
+@utility bg-inverse-hover {
+  background-color: var(--inverse-bg-hover);
+}
+@utility border-inverse {
+  border-color: var(--inverse-border);
+}
+
+@utility bg-overlay {
+  background-color: var(--overlay-backdrop);
+}
+@utility bg-paper {
+  background-color: var(--paper-bg);
+}
+
+@utility fg-brand {
+  color: var(--brand-fg);
+}
+@utility bg-brand {
+  background-color: var(--brand-bg);
+}
+@utility bg-brand-soft {
+  background-color: var(--brand-bg-soft);
+}
+@utility fg-brand-on {
+  color: var(--brand-fg-on);
+}
+@utility fg-on-solid {
+  color: var(--brand-fg-on);
+}
+
+/* ==========================================================================
+   LAYER 3: SEMANTIC COLOR TOKENS (Light Mode)
+   Figma tokens → CSS variables, referencing primitives
+   ========================================================================== */
+
+:root {
+  /* ── fg (foreground / text) ── */
+  --fg-base: var(--neutral-1000);
+  --fg-subtle: var(--neutral-700);
+  --fg-ghost: var(--neutral-500);
+  --fg-placeholder: var(--neutral-400);
+
+  /* ── bg (background / surfaces) ── */
+  --bg-base: var(--neutral-0);
+  --bg-light: var(--neutral-50);
+  --bg-strong: var(--neutral-100);
+  --bg-stronger: var(--neutral-200);
+  --bg-hover: color-mix(in srgb, var(--neutral-1000) 2%, transparent);
+  --bg-selected: color-mix(in srgb, var(--neutral-1000) 6%, transparent);
+  --bg-card: var(--neutral-0);
+  --bg-menu: var(--neutral-0);
+
+  /* ── border ── */
+  --border-base: color-mix(in srgb, var(--neutral-1000) 8%, transparent);
+  --border-frame: color-mix(in srgb, var(--neutral-1000) 8%, transparent);
+  --border-strong: color-mix(in srgb, var(--neutral-1000) 14%, transparent);
+  --border-transparent: color-mix(in srgb, var(--neutral-1000) 0%, transparent);
+
+  /* ── shadow.card ── */
+  --shadow-card-base: color-mix(in srgb, var(--neutral-1000) 10%, transparent);
+  --shadow-card-top: color-mix(in srgb, var(--neutral-0) 5%, transparent);
+  --shadow-card-bottom: color-mix(in srgb, var(--neutral-1000) 5%, transparent);
+  --shadow-card-blur: color-mix(in srgb, var(--neutral-1000) 8%, transparent);
+
+  /* ── shadow.frame ── */
+  --shadow-frame-base: color-mix(in srgb, var(--neutral-1000) 14%, transparent);
+  --shadow-frame-top: color-mix(in srgb, var(--neutral-0) 5%, transparent);
+  --shadow-frame-bottom: color-mix(
+    in srgb,
+    var(--neutral-1000) 5%,
+    transparent
+  );
+  --shadow-frame-blur: color-mix(in srgb, var(--neutral-1000) 8%, transparent);
+
+  /* ── elevation (full box-shadow, semantic) ── */
+  --elevation-card:
+    0 1px 0 0 var(--shadow-card-top, rgba(255, 255, 255, 0.05)) inset,
+    0 -1px 0 0 var(--shadow-card-bottom, rgba(9, 9, 11, 0.05)) inset,
+    0 0 0 1px var(--shadow-card-base, rgba(9, 9, 11, 0.1)) inset;
+  --elevation-frame:
+    0 1px 0 0 var(--shadow-frame-top, rgba(255, 255, 255, 0.05)) inset,
+    0 -1px 0 0 var(--shadow-frame-bottom, rgba(9, 9, 11, 0.05)) inset,
+    0 0 0 1px var(--shadow-frame-base, rgba(9, 9, 11, 0.14)) inset;
+  --elevation-menu:
+    0 -1px 0 0 var(--shadow-card-top, rgba(255, 255, 255, 0.05)),
+    0 1px 0 0 var(--shadow-card-bottom, rgba(9, 9, 11, 0.05)),
+    0 0 0 1px var(--shadow-card-base, rgba(9, 9, 11, 0.1)),
+    0 2px 4px 0 var(--shadow-card-blur, rgba(9, 9, 11, 0.08));
+  --elevation-modal:
+    0 -1px 0 0 var(--shadow-card-top, rgba(255, 255, 255, 0.05)),
+    0 1px 0 0 var(--shadow-card-bottom, rgba(9, 9, 11, 0.05)),
+    0 0 0 1px var(--shadow-card-base, rgba(9, 9, 11, 0.1)),
+    0 6px 28px 0 var(--shadow-card-blur, rgba(9, 9, 11, 0.08));
+
+  /* ── effect: button.primary (Figma: light inset highlight on top edge, dark outer shadow beneath) ── */
+  --effect-button-primary:
+    0 0 0 1px var(--btn-primary-shadow-base) inset,
+    0 1px 2px 0 var(--btn-primary-shadow-drop),
+    0 1px 0 0 var(--btn-primary-shadow-top) inset,
+    0 -1px 0 0 var(--btn-primary-shadow-bottom) inset;
+
+  /* ── effect: field (focus ring / error ring) Figma spread 2px ── */
+  --effect-field-focus: 0 0 0 2px var(--field-shadow-focus);
+  --effect-field-error: 0 0 0 2px var(--field-shadow-error);
+
+  /* ── effect: nav.item ── */
+  /* --effect-nav-item: 0 -1px 0 0 var(--nav-item-shadow-top), 0 1px 0 0 var(--nav-item-shadow-bottom), 0 0 4px 0 var(--nav-item-shadow-blur); */
+  --effect-nav-item:
+    0 1px 0 0 var(--nav-item-shadow-top) inset,
+    0 -1px 0 0 var(--nav-item-shadow-bottom) inset,
+    0 1px 2px 0 var(--nav-item-shadow-blur),
+    0 0 0 1px var(--nav-item-shadow-spread) inset;
+
+  /* ── button.primary ── */
+  --btn-primary-bg: var(--color-indigo-600);
+  --btn-primary-bg-hover: var(--color-indigo-800);
+  --btn-primary-bg-disable: var(--color-indigo-300);
+  --btn-primary-fg: var(--neutral-0);
+  --btn-primary-fg-disable: var(--neutral-0);
+  --btn-primary-shadow-drop: color-mix(
+    in srgb,
+    var(--color-indigo-900) 16%,
+    transparent
+  );
+  --btn-primary-shadow-top: color-mix(
+    in srgb,
+    var(--color-indigo-200) 50%,
+    transparent
+  );
+  --btn-primary-shadow-bottom: color-mix(
+    in srgb,
+    var(--color-indigo-900) 60%,
+    transparent
+  );
+  --btn-primary-shadow-base: color-mix(
+    in srgb,
+    var(--color-indigo-950) 15%,
+    transparent
+  );
+
+  /* ── button.secondary ── */
+  --btn-secondary-bg: color-mix(in srgb, var(--neutral-1000) 6%, transparent);
+  --btn-secondary-bg-hover: color-mix(
+    in srgb,
+    var(--neutral-1000) 10%,
+    transparent
+  );
+  --btn-secondary-bg-disable: color-mix(
+    in srgb,
+    var(--neutral-1000) 4%,
+    transparent
+  );
+  --btn-secondary-fg: var(--neutral-1000);
+  --btn-secondary-fg-disable: color-mix(
+    in srgb,
+    var(--neutral-1000) 60%,
+    transparent
+  );
+  --btn-secondary-border: color-mix(in srgb, var(--neutral-0) 0%, transparent);
+
+  /* ── button.outline ── */
+  --btn-outline-bg: color-mix(in srgb, var(--neutral-1000) 0%, transparent);
+  --btn-outline-bg-hover: color-mix(
+    in srgb,
+    var(--neutral-1000) 4%,
+    transparent
+  );
+  --btn-outline-bg-disable: color-mix(
+    in srgb,
+    var(--neutral-1000) 0%,
+    transparent
+  );
+  --btn-outline-fg: var(--neutral-1000);
+  --btn-outline-fg-disable: color-mix(
+    in srgb,
+    var(--neutral-1000) 60%,
+    transparent
+  );
+  --btn-outline-border: color-mix(in srgb, var(--neutral-1000) 8%, transparent);
+  --btn-outline-border-disable: color-mix(
+    in srgb,
+    var(--neutral-1000) 6%,
+    transparent
+  );
+
+  /* ── button.ghost ── */
+  --btn-ghost-bg: color-mix(in srgb, var(--neutral-1000) 0%, transparent);
+  --btn-ghost-bg-hover: color-mix(in srgb, var(--neutral-1000) 4%, transparent);
+  --btn-ghost-bg-disable: color-mix(
+    in srgb,
+    var(--neutral-1000) 0%,
+    transparent
+  );
+  --btn-ghost-fg: var(--neutral-1000);
+  --btn-ghost-fg-disable: color-mix(
+    in srgb,
+    var(--neutral-1000) 60%,
+    transparent
+  );
+  --btn-ghost-border: color-mix(in srgb, var(--neutral-0) 0%, transparent);
+
+  /* ── button.destructive ── */
+  --btn-destructive-bg: var(--color-red-100);
+  --btn-destructive-bg-hover: var(--color-red-200);
+  --btn-destructive-bg-disable: var(--color-red-50);
+  --btn-destructive-fg: var(--color-red-600);
+  --btn-destructive-fg-disable: var(--color-red-400);
+  --btn-destructive-border: color-mix(
+    in srgb,
+    var(--neutral-0) 0%,
+    transparent
+  );
+
+  /* ── field (Figma node 70:1783) ── */
+  --field-bg: #09090b00;
+  --field-bg-hover: #09090b0a;
+  --field-bg-focus: #ffffff;
+  --field-bg-error: #ffffff;
+  --field-bg-disable: #09090b00;
+  --field-fg: #09090b;
+  --field-fg-placeholder: #09090b66;
+  --field-fg-disable: #09090b99;
+  --field-border: #09090b14;
+  --field-border-focus: #4f46e5;
+  --field-border-error: #ef4444;
+  --field-border-disable: #09090b0f;
+  --field-shadow-focus: #e0e7ff;
+  --field-shadow-error: #fee2e2;
+  --field-bg-selected: #09090b0f;
+  --field-fg-subtle: #3f3f46;
+  --field-fg-ghost: #71717a;
+
+  /* ── chart ── */
+  --chart-success-light: var(--color-emerald-400);
+  --chart-success-base: var(--color-emerald-500);
+  --chart-success-strong: var(--color-emerald-600);
+  --chart-error-light: var(--color-rose-400);
+  --chart-error-base: var(--color-rose-500);
+  --chart-error-strong: var(--color-rose-600);
+  --chart-warning-light: var(--color-orange-400);
+  --chart-warning-base: var(--color-orange-500);
+  --chart-warning-strong: var(--color-orange-600);
+  --chart-info-light: var(--color-sky-400);
+  --chart-info-base: var(--color-sky-500);
+  --chart-info-strong: var(--color-sky-600);
+  --chart-violet-light: var(--color-violet-400);
+  --chart-violet-base: var(--color-violet-500);
+  --chart-violet-strong: var(--color-violet-600);
+  --chart-indigo-light: var(--color-indigo-400);
+  --chart-indigo-base: var(--color-indigo-500);
+  --chart-indigo-strong: var(--color-indigo-600);
+  --chart-cyan-light: var(--color-cyan-400);
+  --chart-cyan-base: var(--color-cyan-500);
+  --chart-cyan-strong: var(--color-cyan-600);
+  --chart-fuchsia-light: var(--color-fuchsia-400);
+  --chart-fuchsia-base: var(--color-fuchsia-500);
+  --chart-fuchsia-strong: var(--color-fuchsia-600);
+  --chart-amber-light: var(--color-amber-400);
+  --chart-amber-base: var(--color-amber-500);
+  --chart-amber-strong: var(--color-amber-600);
+
+  /* ── badge ── */
+  --badge-bg-neutral: color-mix(in srgb, var(--neutral-1000) 7%, transparent);
+  --badge-fg-neutral: var(--neutral-700);
+  --badge-bg-contrast: var(--neutral-1000);
+  --badge-fg-contrast: var(--neutral-50);
+  --badge-fg-outline: var(--neutral-700);
+  --badge-border-outline: color-mix(
+    in srgb,
+    var(--neutral-1000) 14%,
+    transparent
+  );
+
+  /* ── badge.semantic ── */
+  --badge-bg-success: var(--color-emerald-100);
+  --badge-fg-success: var(--color-emerald-700);
+  --badge-bg-error: var(--color-red-100);
+  --badge-fg-error: var(--color-red-700);
+  --badge-bg-warning: var(--color-amber-100);
+  --badge-fg-warning: var(--color-amber-700);
+  --badge-bg-info: var(--color-blue-100);
+  --badge-fg-info: var(--color-blue-700);
+
+  /* ── badge.accent (non-semantic, soft) ── */
+  --badge-bg-indigo: var(--color-indigo-100);
+  --badge-fg-indigo: var(--color-indigo-700);
+  --badge-bg-teal: var(--color-teal-100);
+  --badge-fg-teal: var(--color-teal-700);
+  --badge-bg-pink: var(--color-pink-100);
+  --badge-fg-pink: var(--color-pink-700);
+  --badge-bg-lime: var(--color-lime-100);
+  --badge-fg-lime: var(--color-lime-700);
+  --badge-bg-fuchsia: var(--color-fuchsia-100);
+  --badge-fg-fuchsia: var(--color-fuchsia-700);
+  --badge-bg-cyan: var(--color-cyan-100);
+  --badge-fg-cyan: var(--color-cyan-700);
+  --badge-bg-violet: var(--color-violet-100);
+  --badge-fg-violet: var(--color-violet-700);
+  --badge-bg-rose: var(--color-rose-100);
+  --badge-fg-rose: var(--color-rose-700);
+
+  /* ── tab ── */
+  --tab-bg-base: color-mix(in srgb, var(--neutral-1000) 4%, transparent);
+  --tab-bg-default: color-mix(in srgb, var(--neutral-0) 0%, transparent);
+  --tab-bg-selected: var(--neutral-0);
+  --tab-fg-default: var(--neutral-700);
+  --tab-fg-selected: var(--neutral-1000);
+  --tab-border-selected: var(--neutral-1000);
+
+  /* ── nav.item ── */
+  --nav-item-bg-default: color-mix(
+    in srgb,
+    var(--neutral-1000) 0%,
+    transparent
+  );
+  --nav-item-bg-hover: color-mix(in srgb, var(--neutral-1000) 4%, transparent);
+  --nav-item-bg-selected: var(--neutral-0);
+  --nav-item-fg-default: var(--neutral-700);
+  --nav-item-fg-hover: var(--neutral-1000);
+  --nav-item-fg-selected: var(--color-indigo-600);
+  --nav-item-border-default: color-mix(
+    in srgb,
+    var(--neutral-1000) 8%,
+    transparent
+  );
+  --nav-item-border-transparent: color-mix(
+    in srgb,
+    var(--neutral-1000) 0%,
+    transparent
+  );
+  --nav-item-shadow-top: color-mix(in srgb, var(--neutral-0) 14%, transparent);
+  --nav-item-shadow-bottom: color-mix(
+    in srgb,
+    var(--neutral-1000) 8%,
+    transparent
+  );
+  --nav-item-shadow-blur: color-mix(
+    in srgb,
+    var(--neutral-1000) 8%,
+    transparent
+  );
+  --nav-item-shadow-spread: color-mix(
+    in srgb,
+    var(--neutral-1000) 14%,
+    transparent
+  );
+
+  /* ── status.semantic ── */
+  --status-success-fg: var(--color-emerald-600);
+  --status-success-fg-strong: var(--color-emerald-700);
+  --status-success-bg-soft: var(--color-emerald-100);
+  --status-success-bg-subtle: var(--color-emerald-50);
+  --status-success-border-soft: var(--color-emerald-200);
+
+  --status-error-fg: var(--color-red-600);
+  --status-error-fg-strong: var(--color-red-700);
+  --status-error-bg-soft: var(--color-red-100);
+  --status-error-bg-subtle: var(--color-red-50);
+  --status-error-border-soft: var(--color-red-200);
+
+  --status-warning-fg: var(--color-amber-600);
+  --status-warning-fg-strong: var(--color-amber-700);
+  --status-warning-bg-soft: var(--color-amber-100);
+  --status-warning-bg-subtle: var(--color-amber-50);
+  --status-warning-border-soft: var(--color-amber-200);
+
+  --status-info-fg: var(--color-blue-600);
+  --status-info-fg-strong: var(--color-blue-700);
+  --status-info-bg-soft: var(--color-blue-100);
+  --status-info-bg-subtle: var(--color-blue-50);
+  --status-info-border-soft: var(--color-blue-200);
+
+  --status-accent-fg: var(--color-violet-600);
+  --status-accent-fg-strong: var(--color-violet-700);
+  --status-accent-bg-soft: var(--color-violet-100);
+  --status-accent-border-soft: var(--color-violet-200);
+
+  /* ── inverse surfaces / overlays ── */
+  --inverse-bg: var(--neutral-1000);
+  --inverse-bg-hover: var(--neutral-800);
+  --inverse-fg: var(--neutral-100);
+  --inverse-fg-muted: var(--neutral-400);
+  --inverse-border: var(--neutral-700);
+  --overlay-backdrop: color-mix(in srgb, var(--neutral-1000) 55%, transparent);
+  --paper-bg: var(--neutral-0);
+
+  /* ── brand highlights ── */
+  --brand-fg: var(--color-indigo-500);
+  --brand-bg: var(--color-indigo-500);
+  --brand-bg-soft: color-mix(in srgb, var(--color-indigo-500) 10%, transparent);
+  --brand-fg-on: var(--neutral-0);
+
+  /* ── Shadcn bridge (light) ── */
+  --background: var(--bg-base);
+  --foreground: var(--fg-base);
+  --card: var(--bg-card);
+  --card-foreground: var(--fg-base);
+  --popover: var(--bg-menu);
+  --popover-foreground: var(--fg-base);
+  --primary: var(--btn-primary-bg);
+  --primary-hover: var(--btn-primary-bg-hover);
+  --primary-foreground: var(--btn-primary-fg);
+  --secondary: var(--btn-secondary-bg);
+  --secondary-foreground: var(--btn-secondary-fg);
+  --muted: var(--bg-strong);
+  --muted-foreground: var(--fg-ghost);
+  --accent: var(--bg-hover);
+  --accent-foreground: var(--fg-base);
+  --destructive: var(--btn-destructive-fg);
+  --border: var(--border-base);
+  --input: var(--field-border);
+  --ring: var(--field-border-focus);
+  --chart-1: var(--chart-indigo-base);
+  --chart-2: var(--chart-success-base);
+  --chart-3: var(--chart-amber-base);
+  --chart-4: var(--chart-violet-base);
+  --chart-5: var(--chart-error-base);
+  --sidebar: var(--bg-light);
+  --sidebar-foreground: var(--fg-base);
+  --sidebar-primary: var(--btn-primary-bg);
+  --sidebar-primary-foreground: var(--btn-primary-fg);
+  --sidebar-accent: var(--bg-hover);
+  --sidebar-accent-foreground: var(--fg-base);
+  --sidebar-border: var(--border-base);
+  --sidebar-ring: var(--field-border-focus);
+}
+
+/* ==========================================================================
+   LAYER 3: SEMANTIC COLOR TOKENS (Dark Mode)
+   Same structure, flipped values from Figma Dark tokens
+   ========================================================================== */
+
+.dark {
+  /* ── fg (foreground / text) ── */
+  --fg-base: var(--neutral-0);
+  --fg-subtle: var(--neutral-300);
+  --fg-ghost: var(--neutral-500);
+  --fg-placeholder: var(--neutral-600);
+
+  /* ── bg (background / surfaces) ── */
+  --bg-base: var(--neutral-950);
+  --bg-light: var(--neutral-1000);
+  --bg-strong: var(--neutral-900);
+  --bg-stronger: var(--neutral-700);
+  --bg-hover: color-mix(in srgb, var(--neutral-0) 6%, transparent);
+  --bg-selected: color-mix(in srgb, var(--neutral-0) 10%, transparent);
+  --bg-card: var(--neutral-950);
+  --bg-menu: var(--neutral-800);
+
+  /* ── border ── */
+  --border-base: color-mix(in srgb, var(--neutral-0) 14%, transparent);
+  --border-frame: color-mix(in srgb, var(--neutral-0) 14%, transparent);
+  --border-strong: color-mix(in srgb, var(--neutral-0) 20%, transparent);
+  --border-transparent: color-mix(in srgb, var(--neutral-0) 0%, transparent);
+
+  /* ── shadow.card ── */
+  --shadow-card-base: color-mix(in srgb, var(--neutral-0) 10%, transparent);
+  --shadow-card-top: color-mix(in srgb, var(--neutral-0) 4%, transparent);
+  --shadow-card-bottom: color-mix(in srgb, var(--neutral-0) 0%, transparent);
+  --shadow-card-blur: #020203;
+
+  /* ── shadow.frame ── */
+  --shadow-frame-base: color-mix(in srgb, var(--neutral-0) 10%, transparent);
+  --shadow-frame-top: color-mix(in srgb, var(--neutral-0) 5%, transparent);
+  --shadow-frame-bottom: color-mix(in srgb, var(--neutral-0) 0%, transparent);
+  --shadow-frame-blur: #020203;
+
+  /* ── elevation (full box-shadow, semantic) ── */
+  --elevation-card:
+    0 1px 0 0 var(--shadow-card-top, rgba(255, 255, 255, 0.05)) inset,
+    0 -1px 0 0 var(--shadow-card-bottom, rgba(9, 9, 11, 0.05)) inset,
+    0 0 0 1px var(--shadow-card-base, rgba(9, 9, 11, 0.1)) inset;
+  --elevation-frame:
+    0 1px 0 0 var(--shadow-frame-top, rgba(255, 255, 255, 0.05)) inset,
+    0 -1px 0 0 var(--shadow-frame-bottom, rgba(9, 9, 11, 0.05)) inset,
+    0 0 0 1px var(--shadow-frame-base, rgba(9, 9, 11, 0.14)) inset;
+  --elevation-menu:
+    0 -1px 0 0 var(--shadow-card-top, rgba(255, 255, 255, 0.05)),
+    0 1px 0 0 var(--shadow-card-bottom, rgba(9, 9, 11, 0.05)),
+    0 0 0 1px var(--shadow-card-base, rgba(9, 9, 11, 0.1)),
+    0 2px 4px 0 var(--shadow-card-blur, rgba(9, 9, 11, 0.08));
+  --elevation-modal:
+    0 -1px 0 0 var(--shadow-card-top, rgba(255, 255, 255, 0.05)),
+    0 1px 0 0 var(--shadow-card-bottom, rgba(9, 9, 11, 0.05)),
+    0 0 0 1px var(--shadow-card-base, rgba(9, 9, 11, 0.1)),
+    0 6px 28px 0 var(--shadow-card-blur, rgba(9, 9, 11, 0.08));
+
+  /* ── effect: button.primary (Figma: light inset highlight on top edge, dark outer shadow beneath) ── */
+  --effect-button-primary:
+    0 1px 2px 0 var(--btn-primary-shadow-drop, rgba(49, 46, 129, 0.16)),
+    0 1px 0 0 var(--btn-primary-shadow-top, #818cf8) inset,
+    0 -1px 0 0 var(--btn-primary-shadow-bottom, rgba(9, 9, 11, 0.15)) inset;
+
+  /* ── effect: field (focus ring / error ring) Figma spread 2px ── */
+  --effect-field-focus: 0 0 0 2px var(--field-shadow-focus);
+  --effect-field-error: 0 0 0 2px var(--field-shadow-error);
+
+  /* ── effect: nav.item ── */
+  --effect-nav-item:
+    0 1px 0 0 var(--nav-item-shadow-top) inset,
+    0 -1px 0 0 var(--nav-item-shadow-bottom) inset,
+    0 1px 2px 0 var(--nav-item-shadow-blur),
+    0 0 0 1px var(--nav-item-shadow-spread) inset;
+
+  /* ── button.primary ── */
+  --btn-primary-bg: var(--color-indigo-600);
+  --btn-primary-bg-hover: var(--color-indigo-500);
+  --btn-primary-bg-disable: var(--color-indigo-950);
+  --btn-primary-fg: var(--neutral-0);
+  --btn-primary-fg-disable: color-mix(
+    in srgb,
+    var(--neutral-0) 60%,
+    transparent
+  );
+  --btn-primary-shadow-drop: color-mix(
+    in srgb,
+    var(--neutral-1000) 16%,
+    transparent
+  );
+  --btn-primary-shadow-top: color-mix(
+    in srgb,
+    var(--color-indigo-200) 20%,
+    transparent
+  );
+  --btn-primary-shadow-bottom: color-mix(
+    in srgb,
+    var(--color-indigo-900) 60%,
+    transparent
+  );
+
+  /* ── button.secondary ── */
+  --btn-secondary-bg: color-mix(in srgb, var(--neutral-0) 12%, transparent);
+  --btn-secondary-bg-hover: color-mix(
+    in srgb,
+    var(--neutral-0) 16%,
+    transparent
+  );
+  --btn-secondary-bg-disable: color-mix(
+    in srgb,
+    var(--neutral-0) 10%,
+    transparent
+  );
+  --btn-secondary-fg: var(--neutral-0);
+  --btn-secondary-fg-disable: color-mix(
+    in srgb,
+    var(--neutral-0) 60%,
+    transparent
+  );
+  --btn-secondary-border: color-mix(in srgb, var(--neutral-0) 0%, transparent);
+
+  /* ── button.outline ── */
+  --btn-outline-bg: color-mix(in srgb, var(--neutral-0) 0%, transparent);
+  --btn-outline-bg-hover: color-mix(in srgb, var(--neutral-0) 4%, transparent);
+  --btn-outline-bg-disable: color-mix(
+    in srgb,
+    var(--neutral-0) 0%,
+    transparent
+  );
+  --btn-outline-fg: var(--neutral-0);
+  --btn-outline-fg-disable: color-mix(
+    in srgb,
+    var(--neutral-0) 60%,
+    transparent
+  );
+  --btn-outline-border: color-mix(in srgb, var(--neutral-0) 20%, transparent);
+  --btn-outline-border-disable: color-mix(
+    in srgb,
+    var(--neutral-0) 16%,
+    transparent
+  );
+
+  /* ── button.ghost ── */
+  --btn-ghost-bg: color-mix(in srgb, var(--neutral-0) 0%, transparent);
+  --btn-ghost-bg-hover: color-mix(in srgb, var(--neutral-0) 14%, transparent);
+  --btn-ghost-bg-disable: color-mix(in srgb, var(--neutral-0) 0%, transparent);
+  --btn-ghost-fg: var(--neutral-0);
+  --btn-ghost-fg-disable: color-mix(in srgb, var(--neutral-0) 60%, transparent);
+  --btn-ghost-border: color-mix(in srgb, var(--neutral-0) 0%, transparent);
+
+  /* ── button.destructive ── */
+  --btn-destructive-bg: color-mix(
+    in srgb,
+    var(--color-red-950) 60%,
+    transparent
+  );
+  --btn-destructive-bg-hover: color-mix(
+    in srgb,
+    var(--color-red-900) 60%,
+    transparent
+  );
+  --btn-destructive-bg-disable: color-mix(
+    in srgb,
+    var(--color-red-950) 50%,
+    transparent
+  );
+  --btn-destructive-fg: var(--color-red-400);
+  --btn-destructive-fg-disable: color-mix(
+    in srgb,
+    var(--color-red-500) 40%,
+    transparent
+  );
+  --btn-destructive-border: color-mix(
+    in srgb,
+    var(--neutral-0) 0%,
+    transparent
+  );
+
+  /* ── field ── */
+  --field-bg: color-mix(in srgb, var(--neutral-0) 0%, transparent);
+  --field-bg-hover: color-mix(in srgb, var(--neutral-0) 4%, transparent);
+  --field-bg-focus: var(--neutral-1000);
+  --field-bg-error: var(--neutral-1000);
+  --field-bg-disable: color-mix(in srgb, var(--neutral-0) 0%, transparent);
+  --field-fg: var(--neutral-0);
+  --field-fg-placeholder: color-mix(in srgb, var(--neutral-0) 40%, transparent);
+  --field-fg-disable: color-mix(in srgb, var(--neutral-0) 60%, transparent);
+  --field-border: color-mix(in srgb, var(--neutral-0) 24%, transparent);
+  --field-border-focus: var(--color-indigo-500);
+  --field-border-error: var(--color-red-400);
+  --field-border-disable: color-mix(in srgb, var(--neutral-0) 20%, transparent);
+  --field-shadow-focus: var(--color-indigo-950);
+  --field-shadow-error: var(--color-red-950);
+  --field-bg-selected: color-mix(in srgb, var(--neutral-0) 6%, transparent);
+  --field-fg-subtle: var(--neutral-300);
+  --field-fg-ghost: var(--neutral-500);
+
+  /* ── chart (dark mode flips Light↔Strong) ── */
+  --chart-success-light: var(--color-emerald-600);
+  --chart-success-base: var(--color-emerald-500);
+  --chart-success-strong: var(--color-emerald-600);
+  --chart-error-light: var(--color-rose-600);
+  --chart-error-base: var(--color-rose-500);
+  --chart-error-strong: var(--color-rose-400);
+  --chart-warning-light: var(--color-orange-600);
+  --chart-warning-base: var(--color-orange-500);
+  --chart-warning-strong: var(--color-orange-400);
+  --chart-info-light: var(--color-sky-600);
+  --chart-info-base: var(--color-sky-500);
+  --chart-info-strong: var(--color-sky-400);
+  --chart-violet-light: var(--color-violet-600);
+  --chart-violet-base: var(--color-violet-500);
+  --chart-violet-strong: var(--color-violet-400);
+  --chart-indigo-light: var(--color-indigo-600);
+  --chart-indigo-base: var(--color-indigo-500);
+  --chart-indigo-strong: var(--color-indigo-500);
+  --chart-cyan-light: var(--color-cyan-600);
+  --chart-cyan-base: var(--color-cyan-500);
+  --chart-cyan-strong: var(--color-cyan-400);
+  --chart-fuchsia-light: var(--color-fuchsia-600);
+  --chart-fuchsia-base: var(--color-fuchsia-500);
+  --chart-fuchsia-strong: var(--color-fuchsia-400);
+  --chart-amber-light: var(--color-amber-600);
+  --chart-amber-base: var(--color-amber-500);
+  --chart-amber-strong: var(--color-amber-400);
+
+  /* ── badge ── */
+  --badge-bg-neutral: color-mix(in srgb, var(--neutral-0) 14%, transparent);
+  --badge-fg-neutral: var(--neutral-200);
+  --badge-bg-contrast: var(--neutral-100);
+  --badge-fg-contrast: var(--neutral-1000);
+  --badge-fg-outline: var(--neutral-200);
+  --badge-border-outline: color-mix(in srgb, var(--neutral-0) 20%, transparent);
+
+  /* ── badge.semantic ── */
+  --badge-bg-success: var(--color-emerald-950);
+  --badge-fg-success: var(--color-emerald-300);
+  --badge-bg-error: var(--color-red-950);
+  --badge-fg-error: var(--color-red-300);
+  --badge-bg-warning: var(--color-amber-950);
+  --badge-fg-warning: var(--color-amber-300);
+  --badge-bg-info: var(--color-blue-950);
+  --badge-fg-info: var(--color-blue-300);
+
+  /* ── badge.accent (non-semantic, soft) ── */
+  --badge-bg-indigo: var(--color-indigo-950);
+  --badge-fg-indigo: var(--color-indigo-300);
+  --badge-bg-teal: var(--color-teal-950);
+  --badge-fg-teal: var(--color-teal-300);
+  --badge-bg-pink: var(--color-pink-950);
+  --badge-fg-pink: var(--color-pink-300);
+  --badge-bg-lime: var(--color-lime-950);
+  --badge-fg-lime: var(--color-lime-300);
+  --badge-bg-fuchsia: var(--color-fuchsia-950);
+  --badge-fg-fuchsia: var(--color-fuchsia-300);
+  --badge-bg-cyan: var(--color-cyan-950);
+  --badge-fg-cyan: var(--color-cyan-300);
+  --badge-bg-violet: var(--color-violet-950);
+  --badge-fg-violet: var(--color-violet-300);
+  --badge-bg-rose: var(--color-rose-950);
+  --badge-fg-rose: var(--color-rose-300);
+
+  /* ── tab ── */
+  --tab-bg-base: color-mix(in srgb, var(--neutral-0) 6%, transparent);
+  --tab-bg-default: color-mix(in srgb, var(--neutral-900) 0%, transparent);
+  --tab-bg-selected: var(--neutral-1000);
+  --tab-fg-default: var(--neutral-300);
+  --tab-fg-selected: var(--neutral-0);
+  --tab-border-selected: var(--neutral-0);
+
+  /* ── nav.item ── */
+  --nav-item-bg-default: color-mix(in srgb, var(--neutral-0) 0%, transparent);
+  --nav-item-bg-hover: color-mix(in srgb, var(--neutral-0) 8%, transparent);
+  --nav-item-bg-selected: var(--neutral-1000);
+  --nav-item-fg-default: var(--neutral-300);
+  --nav-item-fg-hover: var(--neutral-0);
+  --nav-item-fg-selected: var(--color-indigo-500);
+  --nav-item-border-default: color-mix(
+    in srgb,
+    var(--neutral-0) 15%,
+    transparent
+  );
+  --nav-item-border-transparent: color-mix(
+    in srgb,
+    var(--neutral-0) 0%,
+    transparent
+  );
+  --nav-item-shadow-top: color-mix(in srgb, var(--neutral-0) 9%, transparent);
+  --nav-item-shadow-bottom: color-mix(
+    in srgb,
+    var(--neutral-0) 0%,
+    transparent
+  );
+  --nav-item-shadow-blur: color-mix(in srgb, #020203 45%, transparent);
+  --nav-item-shadow-spread: color-mix(
+    in srgb,
+    var(--neutral-0) 10%,
+    transparent
+  );
+
+  /* ── status.semantic ── */
+  --status-success-fg: var(--color-emerald-400);
+  --status-success-fg-strong: var(--color-emerald-300);
+  --status-success-bg-soft: color-mix(
+    in srgb,
+    var(--color-emerald-900) 30%,
+    transparent
+  );
+  --status-success-bg-subtle: color-mix(
+    in srgb,
+    var(--color-emerald-950) 30%,
+    transparent
+  );
+  --status-success-border-soft: var(--color-emerald-800);
+
+  --status-error-fg: var(--color-red-400);
+  --status-error-fg-strong: var(--color-red-300);
+  --status-error-bg-soft: color-mix(in srgb, var(--color-red-900) 30%, transparent);
+  --status-error-bg-subtle: color-mix(
+    in srgb,
+    var(--color-red-950) 30%,
+    transparent
+  );
+  --status-error-border-soft: var(--color-red-800);
+
+  --status-warning-fg: var(--color-amber-400);
+  --status-warning-fg-strong: var(--color-amber-300);
+  --status-warning-bg-soft: color-mix(
+    in srgb,
+    var(--color-amber-900) 30%,
+    transparent
+  );
+  --status-warning-bg-subtle: color-mix(
+    in srgb,
+    var(--color-amber-950) 30%,
+    transparent
+  );
+  --status-warning-border-soft: var(--color-amber-800);
+
+  --status-info-fg: var(--color-blue-400);
+  --status-info-fg-strong: var(--color-blue-300);
+  --status-info-bg-soft: color-mix(in srgb, var(--color-blue-900) 30%, transparent);
+  --status-info-bg-subtle: color-mix(
+    in srgb,
+    var(--color-blue-950) 30%,
+    transparent
+  );
+  --status-info-border-soft: var(--color-blue-800);
+
+  --status-accent-fg: var(--color-violet-400);
+  --status-accent-fg-strong: var(--color-violet-300);
+  --status-accent-bg-soft: color-mix(
+    in srgb,
+    var(--color-violet-900) 30%,
+    transparent
+  );
+  --status-accent-border-soft: var(--color-violet-800);
+
+  /* ── inverse surfaces / overlays ── */
+  --inverse-bg: var(--neutral-1000);
+  --inverse-bg-hover: var(--neutral-900);
+  --inverse-fg: var(--neutral-100);
+  --inverse-fg-muted: var(--neutral-500);
+  --inverse-border: var(--neutral-700);
+  --overlay-backdrop: color-mix(in srgb, var(--neutral-1000) 70%, transparent);
+  --paper-bg: var(--neutral-0);
+
+  /* ── brand highlights ── */
+  --brand-fg: var(--color-indigo-400);
+  --brand-bg: var(--color-indigo-500);
+  --brand-bg-soft: color-mix(in srgb, var(--color-indigo-500) 16%, transparent);
+  --brand-fg-on: var(--neutral-0);
+
+  /* ── Shadcn bridge (dark) ── */
+  --background: var(--bg-base);
+  --foreground: var(--fg-base);
+  --card: var(--bg-card);
+  --card-foreground: var(--fg-base);
+  --popover: var(--bg-menu);
+  --popover-foreground: var(--fg-base);
+  --primary: var(--btn-primary-bg);
+  --primary-hover: var(--btn-primary-bg-hover);
+  --primary-foreground: var(--btn-primary-fg);
+  --secondary: var(--btn-secondary-bg);
+  --secondary-foreground: var(--btn-secondary-fg);
+  --muted: var(--bg-strong);
+  --muted-foreground: var(--fg-ghost);
+  --accent: var(--bg-hover);
+  --accent-foreground: var(--fg-base);
+  --destructive: var(--btn-destructive-fg);
+  --border: var(--border-base);
+  --input: var(--field-border);
+  --ring: var(--field-border-focus);
+  --chart-1: var(--chart-indigo-base);
+  --chart-2: var(--chart-success-base);
+  --chart-3: var(--chart-amber-base);
+  --chart-4: var(--chart-violet-base);
+  --chart-5: var(--chart-error-base);
+  --sidebar: var(--bg-strong);
+  --sidebar-foreground: var(--fg-base);
+  --sidebar-primary: var(--btn-primary-bg);
+  --sidebar-primary-foreground: var(--btn-primary-fg);
+  --sidebar-accent: var(--bg-hover);
+  --sidebar-accent-foreground: var(--fg-base);
+  --sidebar-border: var(--border-base);
+  --sidebar-ring: var(--field-border-focus);
+}
+
+@layer base {
+  * {
+    @apply border-base outline-ring/50;
+  }
+  body {
+    @apply bg-base fg-base;
+  }
+}

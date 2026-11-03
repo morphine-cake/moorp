@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
+import { TooltipProvider } from 'reka-ui'
+import UiKit from './UiKit.vue'
 import CanvasView from './components/CanvasView.vue'
 import PropertiesPanel from './components/PropertiesPanel.vue'
 import Sidebar from './components/Sidebar.vue'
@@ -29,13 +31,28 @@ function onKeyDown(e: KeyboardEvent) {
 const onKeyUp = (e: KeyboardEvent) => e.code === 'Space' && (state.spaceDown = false)
 const onBlur = () => (state.spaceDown = false)
 
-onMounted(() => {
+// #/__ui shows the design-system page instead of the app.
+const showKit = ref(location.hash === '#/__ui')
+let started = false
+function start() {
+  if (started || showKit.value) return
+  started = true
   void init()
+}
+const onHash = () => {
+  showKit.value = location.hash === '#/__ui'
+  start()
+}
+
+onMounted(() => {
+  start()
+  window.addEventListener('hashchange', onHash)
   window.addEventListener('keydown', onKeyDown)
   window.addEventListener('keyup', onKeyUp)
   window.addEventListener('blur', onBlur)
 })
 onUnmounted(() => {
+  window.removeEventListener('hashchange', onHash)
   window.removeEventListener('keydown', onKeyDown)
   window.removeEventListener('keyup', onKeyUp)
   window.removeEventListener('blur', onBlur)
@@ -43,7 +60,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="app" :class="{ zen: state.hideUI }">
+  <TooltipProvider :delay-duration="400" :skip-delay-duration="200">
+  <UiKit v-if="showKit" />
+  <div v-else class="app" :class="{ zen: state.hideUI }">
     <Sidebar />
     <main class="stage">
       <CanvasView v-if="state.current" />
@@ -58,4 +77,5 @@ onUnmounted(() => {
     </main>
     <PropertiesPanel />
   </div>
+  </TooltipProvider>
 </template>
