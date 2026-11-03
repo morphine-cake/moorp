@@ -28,7 +28,7 @@ Use the `@alpha` tag: `moorp@latest` is still a name-reservation placeholder wit
 
 - `@moorp/core`: manifest types, validation and the preview protocol (no UI framework dependency).
 - `@moorp/vue`: Vue adapter, the preview entry that mounts a component and talks to the shell.
-- `@moorp/shell`: the canvas app (sidebar, canvas, properties panel), built to static files.
+- `@moorp/shell`: the canvas app (sidebar, canvas, properties panel), built to static files. Styled with the codeva design system ([docs/design-system.md](docs/design-system.md)); `#/__ui` in the app shows it.
 - `moorp`: the CLI and Vite plugin.
 - `playground/`: a sample project that runs on `moorp dev`.
 

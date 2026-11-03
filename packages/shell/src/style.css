@@ -11,6 +11,11 @@
 }
 
 @layer base {
+  html,
+  body,
+  #app {
+    height: 100%;
+  }
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -27,4 +32,4 @@
   }
 }
 
-@import "./styles/legacy.css";
+@import "./styles/canvas.css";

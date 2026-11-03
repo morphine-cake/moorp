@@ -4,6 +4,10 @@ import { PROTOCOL, isProtocolMessage, type Frame } from '@moorp/core'
 import { api, checkFrame } from '../api'
 import { beginGesture, commit, copyFrame, duplicateInPlace, patchFrame, removeFrame, runAction, state } from '../store'
 import { matchShortcut } from '../shortcuts.ts'
+import { Copy, ExternalLink, Trash2 } from 'lucide-vue-next'
+import Button from '@/components/ui/Button.vue'
+import Input from '@/components/ui/Input.vue'
+import Tooltip from '@/components/ui/Tooltip.vue'
 
 const props = defineProps<{ frame: Frame }>()
 const emit = defineEmits<{ zoom: [clientX: number, clientY: number, deltaY: number] }>()
@@ -163,13 +167,13 @@ function startResize(e: PointerEvent, axis: 'x' | 'y' | 'xy') {
 
 const renaming = ref(false)
 const nameDraft = ref('')
-const nameInput = ref<HTMLInputElement | null>(null)
+const nameInput = ref<{ $el: HTMLInputElement } | null>(null)
 async function startRename() {
   nameDraft.value = props.frame.name
   renaming.value = true
   await nextTick()
-  nameInput.value?.focus()
-  nameInput.value?.select()
+  nameInput.value?.$el.focus()
+  nameInput.value?.$el.select()
 }
 watch(
   () => state.renaming,
@@ -199,21 +203,28 @@ async function openSource() {
 
 <template>
   <div class="frame" :data-id="frame.id" :class="{ selected }" :style="{ left: frame.x + 'px', top: frame.y + 'px', width: width + 'px' }">
-    <div class="bar" @pointerdown="startMove" @dblclick="startRename">
-      <input
+    <div class="bar flex items-center justify-between gap-2 px-0.5 py-1" @pointerdown="startMove" @dblclick="startRename">
+      <Input
         v-if="renaming"
         ref="nameInput"
         v-model="nameDraft"
+        class="h-6 w-40 px-1.5 py-0.5 text-xs"
         @pointerdown.stop
         @keydown.enter="finishRename(true)"
         @keydown.esc="finishRename(false)"
         @blur="finishRename(true)"
       />
-      <span v-else class="title" :title="frame.id">{{ frame.name }}</span>
-      <span class="actions" @pointerdown.stop>
-        <button v-if="frame.source" title="Open source in editor" @click="openSource">Open source</button>
-        <button title="Duplicate frame (source files are not copied)" @click="copyFrame(frame.id)">Duplicate</button>
-        <button title="Remove from canvas (source files are not deleted)" @click="removeFrame(frame.id)">Delete</button>
+      <span v-else class="type-body-xs truncate" :class="selected ? 'fg-brand font-semibold' : 'fg-ghost'" :title="frame.id">{{ frame.name }}</span>
+      <span class="actions shrink-0 items-center gap-0.5" @pointerdown.stop>
+        <Tooltip v-if="frame.source" text="Open source in editor">
+          <Button variant="ghost" size="icon-xs" aria-label="Open source in editor" @click="openSource"><ExternalLink /></Button>
+        </Tooltip>
+        <Tooltip text="Duplicate" shortcut="⌘D">
+          <Button variant="ghost" size="icon-xs" aria-label="Duplicate frame (source files are not copied)" @click="copyFrame(frame.id)"><Copy /></Button>
+        </Tooltip>
+        <Tooltip text="Remove from canvas" shortcut="⌫">
+          <Button variant="ghost" size="icon-xs" aria-label="Remove from canvas (source files are not deleted)" @click="removeFrame(frame.id)"><Trash2 /></Button>
+        </Tooltip>
       </span>
     </div>
 

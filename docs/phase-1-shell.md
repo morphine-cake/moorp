@@ -1,5 +1,7 @@
 # Phase 1 — canvas shell and `moorp` CLI
 
+The shell's look (tokens, components, light and dark) comes from the codeva design system: see [design-system.md](design-system.md).
+
 What replaced the spike code, how it fits together, and what was checked. The spike results are in [phase-0-spike.md](phase-0-spike.md).
 
 ## Packages
@@ -8,7 +10,7 @@ What replaced the spike code, how it fits together, and what was checked. The sp
 | --- | --- |
 | `@moorp/core` | Manifest types and validation (`validateCanvas`), `duplicateFrame`, canvas path rules, the `moorp/1` preview protocol. No UI framework, runs in Node and the browser. |
 | `@moorp/vue` | Vue adapter: `startPreview()` mounts a component in a preview iframe, applies frame presentation, reports size, errors and pinch zoom. |
-| `@moorp/shell` | The canvas app (Vue 3 + Vite): sidebar, infinite canvas, frame toolbar, properties panel. Built to static files. |
+| `@moorp/shell` | The canvas app (Vue 3 + Vite + Tailwind): sidebar, infinite canvas, frame toolbar, properties panel. Built to static files. |
 | `moorp` | The CLI (`moorp init`, `moorp dev`) and the Vite plugin that serves the shell, the canvas API and the preview entry. `private` until the first real release. |
 | `playground/` | A sample Vue + Vite project that runs on `moorp dev`; it replaces the spike's hand-written shell. |
 

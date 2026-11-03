@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { addFrame, fitFrames, redo, state, undo } from '../store'
+import { Frame, Maximize, Monitor, Redo2, Undo2 } from 'lucide-vue-next'
+import { addFrame, fitFrames, redo, runAction, state, undo } from '../store'
+import Button from '@/components/ui/Button.vue'
+import Separator from '@/components/ui/Separator.vue'
+import Tooltip from '@/components/ui/Tooltip.vue'
 import FrameBox from './FrameBox.vue'
 
 const MIN_ZOOM = 0.02
@@ -88,18 +92,32 @@ onUnmounted(() => observer?.disconnect())
       <FrameBox v-for="f in frames" :key="f.id" :frame="f" @zoom="onFrameZoom" />
     </div>
 
-    <div class="canvas-tools">
-      <button title="Add a design frame (F)" @click="addFrame('design')">+ Design frame</button>
-      <button @click="addFrame('page')">+ Page frame</button>
-      <button title="Zoom to fit all frames (Shift+1)" @click="fitFrames()">Fit</button>
-      <button title="Undo (Ctrl/Cmd+Z)" :disabled="!state.canUndo" @click="undo">Undo</button>
-      <button title="Redo (Shift+Ctrl/Cmd+Z)" :disabled="!state.canRedo" @click="redo">Redo</button>
-      <span class="zoom">{{ Math.round(state.view.s * 100) }}%</span>
+    <div class="bg-menu shadow-elevation-menu absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-0.5 rounded-xl p-1">
+      <Tooltip text="Design frame" shortcut="F" side="top">
+        <Button variant="ghost" size="icon-sm" aria-label="Add a design frame" @click="addFrame('design')"><Frame /></Button>
+      </Tooltip>
+      <Tooltip text="Page frame" side="top">
+        <Button variant="ghost" size="icon-sm" aria-label="Add a page frame" @click="addFrame('page')"><Monitor /></Button>
+      </Tooltip>
+      <Separator orientation="vertical" class="mx-1 h-5" />
+      <Tooltip text="Undo" shortcut="⌘Z" side="top">
+        <Button variant="ghost" size="icon-sm" aria-label="Undo" :disabled="!state.canUndo" @click="undo"><Undo2 /></Button>
+      </Tooltip>
+      <Tooltip text="Redo" shortcut="⇧⌘Z" side="top">
+        <Button variant="ghost" size="icon-sm" aria-label="Redo" :disabled="!state.canRedo" @click="redo"><Redo2 /></Button>
+      </Tooltip>
+      <Separator orientation="vertical" class="mx-1 h-5" />
+      <Tooltip text="Zoom to fit" shortcut="⇧1" side="top">
+        <Button variant="ghost" size="icon-sm" aria-label="Zoom to fit all frames" @click="fitFrames()"><Maximize /></Button>
+      </Tooltip>
+      <Tooltip text="Zoom to 100%" shortcut="⇧0" side="top">
+        <Button variant="ghost" size="sm" class="zoom w-14 tabular-nums" aria-label="Zoom level" @click="runAction({ type: 'zoom100' })">{{ Math.round(state.view.s * 100) }}%</Button>
+      </Tooltip>
     </div>
 
-    <div v-if="state.canvas && !frames.length" class="empty-hint">
-      <h2>Empty canvas</h2>
-      <p>Add a Design frame for a component, or a Page frame for a running route. Then bind a source in the properties panel.</p>
+    <div v-if="state.canvas && !frames.length" class="pointer-events-none absolute inset-0 grid place-content-center gap-1 p-6 text-center">
+      <h2 class="type-heading-2">Empty canvas</h2>
+      <p class="type-body-m fg-ghost max-w-sm">Add a design frame for a component, or a page frame for a running route. Then bind a source in the properties panel.</p>
     </div>
   </div>
 </template>

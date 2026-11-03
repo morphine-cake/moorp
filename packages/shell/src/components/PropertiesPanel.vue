@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import type { Presentation } from '@moorp/core'
+import { Copy, Focus, Trash2 } from 'lucide-vue-next'
 import { copyFrame, deleteCanvas, fitFrames, patchFrame, removeFrame, resetView, selectedFrame as frame, state } from '../store'
+import PanelSection from './PanelSection.vue'
+import Badge from '@/components/ui/Badge.vue'
+import Button from '@/components/ui/Button.vue'
+import Input from '@/components/ui/Input.vue'
+import Kbd from '@/components/ui/Kbd.vue'
+import Label from '@/components/ui/Label.vue'
+import Select from '@/components/ui/Select.vue'
+import Textarea from '@/components/ui/Textarea.vue'
 
 const isDesign = computed(() => frame.value?.type === 'design')
 const presets = [
@@ -70,152 +79,190 @@ function setHtmlClass(e: Event) {
 }
 
 const padding = computed(() => frame.value?.presentation?.padding ?? 0)
+
+// Select options. Option values cannot be empty strings, so "unset" has a name ("default", "visible").
+const sizeModes = [
+  { value: 'hug', label: 'Hug' },
+  { value: 'fixed', label: 'Fixed' },
+]
+const alignmentOptions = [
+  { value: 'default', label: 'Default' },
+  { value: 'start', label: 'Start' },
+  { value: 'center', label: 'Center' },
+  { value: 'end', label: 'End' },
+]
+const overflowOptions = [
+  { value: 'visible', label: 'Visible' },
+  { value: 'hidden', label: 'Hidden' },
+  { value: 'scroll', label: 'Scroll' },
+]
+const paddingOptions = computed(() => {
+  const values = [0, 8, 16, 24, 32]
+  if (!values.includes(padding.value)) values.push(padding.value)
+  return values.sort((a, b) => a - b).map((v) => ({ value: String(v), label: `${v}px` }))
+})
+
+const text = (e: Event) => (e.target as HTMLInputElement).value.trim()
+
+const shortcuts: [string, string[]][] = [
+  ['Undo, redo', ['⌘Z', '⇧⌘Z']],
+  ['Duplicate', ['⌘D', 'Alt+drag']],
+  ['Copy, paste', ['⌘C', '⌘V']],
+  ['Rename', ['⌘R']],
+  ['Delete, deselect', ['⌫', 'Esc']],
+  ['Nudge 1 / 10 px', ['Arrows', '⇧ Arrows']],
+  ['Next frame', ['Tab', '⇧Tab']],
+  ['Fit, selection, 100%', ['⇧1', '⇧2', '⇧0']],
+  ['Zoom in, out', ['⌘+', '⌘−']],
+  ['Pan', ['Space+drag']],
+  ['Constrain, keep ratio', ['⇧ drag']],
+  ['Add design frame', ['F']],
+  ['Hide panels', ['⌘\\']],
+]
 </script>
 
 <template>
-  <aside class="panel">
+  <aside class="panel bg-base flex min-w-0 flex-col overflow-auto border-l">
     <template v-if="frame">
-      <header>
-        <strong>{{ frame.name }}</strong>
-        <span class="muted">{{ frame.id }} · {{ frame.type }}</span>
+      <header class="flex flex-col gap-1.5 border-b p-3">
+        <div class="flex items-center justify-between gap-2">
+          <strong class="type-heading-4 truncate">{{ frame.name }}</strong>
+          <Badge :variant="isDesign ? 'indigo' : 'teal'">{{ frame.type }}</Badge>
+        </div>
+        <span class="type-code-xs fg-ghost">{{ frame.id }}</span>
       </header>
 
-      <section>
-        <label>Name <input :value="frame.name" @change="patchFrame(id(), { name: ($event.target as HTMLInputElement).value.trim() || frame.name })" /></label>
-      </section>
+      <PanelSection>
+        <div class="flex flex-col gap-1.5">
+          <Label for="p-name">Name</Label>
+          <Input id="p-name" :model-value="frame.name" @change="patchFrame(id(), { name: text($event) || frame.name })" />
+        </div>
+      </PanelSection>
 
-      <section>
-        <h4>Source</h4>
-        <label v-if="isDesign">
-          Component file
-          <input :value="frame.source?.file ?? ''" placeholder="src/components/Card.vue" @change="setSource" />
-        </label>
-        <label v-else>
-          URL or route
-          <input :value="frame.url ?? ''" placeholder="/" @change="setUrl" />
-        </label>
-        <p class="hint">Empty means unbound. Claude Code, Codex or you can also edit the canvas file directly.</p>
-      </section>
+      <PanelSection title="Source">
+        <div v-if="isDesign" class="flex flex-col gap-1.5">
+          <Label for="p-source">Component file</Label>
+          <Input id="p-source" :model-value="frame.source?.file ?? ''" placeholder="src/components/Card.vue" @change="setSource" />
+        </div>
+        <div v-else class="flex flex-col gap-1.5">
+          <Label for="p-url">URL or route</Label>
+          <Input id="p-url" :model-value="frame.url ?? ''" placeholder="/" @change="setUrl" />
+        </div>
+        <p class="type-body-xs fg-ghost">Empty means unbound. Claude Code, Codex or you can also edit the canvas file directly.</p>
+      </PanelSection>
 
-      <section>
-        <h4>Size</h4>
+      <PanelSection title="Size">
         <template v-if="isDesign">
-          <div class="pair">
-            <label>Width
-              <select :value="frame.width === 'hug' ? 'hug' : 'fixed'" @change="setSize('width', ($event.target as HTMLSelectElement).value)">
-                <option value="hug">Hug</option><option value="fixed">Fixed</option>
-              </select>
-            </label>
-            <input v-if="frame.width !== 'hug'" type="number" min="40" :value="frame.width" @change="patchFrame(id(), { width: num($event) })" />
-          </div>
-          <div class="pair">
-            <label>Height
-              <select :value="frame.height === 'hug' ? 'hug' : 'fixed'" @change="setSize('height', ($event.target as HTMLSelectElement).value)">
-                <option value="hug">Hug</option><option value="fixed">Fixed</option>
-              </select>
-            </label>
-            <input v-if="frame.height !== 'hug'" type="number" min="40" :value="frame.height" @change="patchFrame(id(), { height: num($event) })" />
+          <div class="grid grid-cols-2 gap-2">
+            <div class="flex flex-col gap-1.5">
+              <Label>Width</Label>
+              <Select :model-value="frame.width === 'hug' ? 'hug' : 'fixed'" :options="sizeModes" @update:model-value="setSize('width', $event as string)" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <Label>Height</Label>
+              <Select :model-value="frame.height === 'hug' ? 'hug' : 'fixed'" :options="sizeModes" @update:model-value="setSize('height', $event as string)" />
+            </div>
+            <Input v-if="frame.width !== 'hug'" type="number" min="40" :model-value="frame.width" aria-label="Width in pixels" @change="patchFrame(id(), { width: num($event) })" />
+            <span v-else />
+            <Input v-if="frame.height !== 'hug'" type="number" min="40" :model-value="frame.height" aria-label="Height in pixels" @change="patchFrame(id(), { height: num($event) })" />
           </div>
         </template>
         <template v-else>
-          <div class="presets">
-            <button v-for="p in presets" :key="p.label" @click="patchFrame(id(), { width: p.width, height: p.height })">{{ p.label }}</button>
+          <div class="flex flex-wrap gap-1.5">
+            <Button v-for="p in presets" :key="p.label" variant="outline" size="xs" @click="patchFrame(id(), { width: p.width, height: p.height })">{{ p.label }}</Button>
           </div>
-          <div class="pair">
-            <label>Width <input type="number" min="40" :value="frame.width" @change="patchFrame(id(), { width: num($event) })" /></label>
-            <label>Height <input type="number" min="40" :value="frame.height" @change="patchFrame(id(), { height: num($event) })" /></label>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="flex flex-col gap-1.5"><Label for="p-w">Width</Label><Input id="p-w" type="number" min="40" :model-value="frame.width" @change="patchFrame(id(), { width: num($event) })" /></div>
+            <div class="flex flex-col gap-1.5"><Label for="p-h">Height</Label><Input id="p-h" type="number" min="40" :model-value="frame.height" @change="patchFrame(id(), { height: num($event) })" /></div>
           </div>
         </template>
-      </section>
+      </PanelSection>
 
-      <section v-if="isDesign">
-        <h4>Scenario</h4>
-        <input :value="frame.scenario ?? ''" placeholder="e.g. tr" @change="patchFrame(id(), { scenario: ($event.target as HTMLInputElement).value.trim() || undefined })" />
-        <p class="hint">A name your <code>.visual-canvas/preview.ts</code> can read from <code>setup(app, context)</code>, for example to pick a locale or seed a store. Changing it reloads the frame.</p>
-      </section>
+      <PanelSection v-if="isDesign" title="Scenario">
+        <Input :model-value="frame.scenario ?? ''" placeholder="e.g. tr" aria-label="Scenario" @change="patchFrame(id(), { scenario: text($event) || undefined })" />
+        <p class="type-body-xs fg-ghost">A name your <code class="type-code-xs">.visual-canvas/preview.ts</code> can read from <code class="type-code-xs">setup(app, context)</code>, for example to pick a locale or seed a store. Changing it reloads the frame.</p>
+      </PanelSection>
 
-      <section v-if="isDesign">
-        <h4>Props</h4>
-        <textarea v-model="propsText" rows="4" spellcheck="false" placeholder='{ "isDark": true }' @change="setProps" />
-        <p v-if="propsError" class="hint error-text">{{ propsError }}</p>
-        <p v-else class="hint">JSON passed to the component as props. Several frames can show one component in different states.</p>
-      </section>
+      <PanelSection v-if="isDesign" title="Props">
+        <Textarea v-model="propsText" rows="4" spellcheck="false" placeholder='{ "isDark": true }' class="font-mono text-xs" :aria-invalid="propsError ? 'true' : undefined" @change="setProps" />
+        <p v-if="propsError" class="type-body-xs fg-error">{{ propsError }}</p>
+        <p v-else class="type-body-xs fg-ghost">JSON passed to the component as props. Several frames can show one component in different states.</p>
+      </PanelSection>
 
-      <section v-if="isDesign">
-        <h4>Frame presentation</h4>
-        <label>Background
-          <span class="pair">
-            <input type="color" :value="frame.presentation?.background ?? '#ffffff'" @input="setPres({ background: ($event.target as HTMLInputElement).value })" />
-            <input :value="frame.presentation?.background ?? ''" placeholder="transparent" @change="setPres({ background: ($event.target as HTMLInputElement).value.trim() })" />
-          </span>
-        </label>
-        <label>Padding
-          <select :value="padding" @change="setPres({ padding: Number(($event.target as HTMLSelectElement).value) })">
-            <option v-for="p in [0, 8, 16, 24, 32]" :key="p" :value="p">{{ p }}</option>
-            <option v-if="![0, 8, 16, 24, 32].includes(padding)" :value="padding">{{ padding }}</option>
-          </select>
-        </label>
-        <label>Alignment <span class="hint">(fixed frames)</span>
-          <select :value="frame.presentation?.alignment ?? ''" @change="setPres({ alignment: (($event.target as HTMLSelectElement).value || undefined) as Presentation['alignment'] })">
-            <option value="">Default</option><option value="start">Start</option><option value="center">Center</option><option value="end">End</option>
-          </select>
-        </label>
-        <label>Overflow
-          <select :value="frame.presentation?.overflow ?? ''" @change="setPres({ overflow: (($event.target as HTMLSelectElement).value || undefined) as Presentation['overflow'] })">
-            <option value="">Visible</option><option value="hidden">Hidden</option><option value="scroll">Scroll</option>
-          </select>
-        </label>
-        <label>Class on &lt;html&gt;
-          <input :value="frame.presentation?.htmlAttributes?.class ?? ''" placeholder="dark" @change="setHtmlClass" />
-        </label>
-        <p class="hint">Frame settings only. They never change the component's own CSS. The class lets one frame show a dark theme (Tailwind <code>dark</code>); other attributes, like <code>data-theme</code>, can be set in the canvas file.</p>
-      </section>
+      <PanelSection v-if="isDesign" title="Frame presentation">
+        <div class="flex flex-col gap-1.5">
+          <Label for="p-bg">Background</Label>
+          <div class="flex gap-2">
+            <input
+              type="color"
+              class="bg-field-bg border-field-border h-8 w-10 shrink-0 cursor-pointer rounded-lg border p-0.5"
+              :value="frame.presentation?.background ?? '#ffffff'"
+              aria-label="Background colour"
+              @input="setPres({ background: ($event.target as HTMLInputElement).value })"
+            />
+            <Input id="p-bg" :model-value="frame.presentation?.background ?? ''" placeholder="transparent" @change="setPres({ background: text($event) })" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="flex flex-col gap-1.5">
+            <Label>Padding</Label>
+            <Select :model-value="String(padding)" :options="paddingOptions" @update:model-value="setPres({ padding: Number($event) })" />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <Label>Overflow</Label>
+            <Select :model-value="frame.presentation?.overflow ?? 'visible'" :options="overflowOptions" @update:model-value="setPres({ overflow: $event === 'visible' ? undefined : ($event as Presentation['overflow']) })" />
+          </div>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <Label>Alignment <span class="fg-ghost font-normal">(fixed frames)</span></Label>
+          <Select :model-value="frame.presentation?.alignment ?? 'default'" :options="alignmentOptions" @update:model-value="setPres({ alignment: $event === 'default' ? undefined : ($event as Presentation['alignment']) })" />
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <Label for="p-html">Class on &lt;html&gt;</Label>
+          <Input id="p-html" :model-value="frame.presentation?.htmlAttributes?.class ?? ''" placeholder="dark" @change="setHtmlClass" />
+        </div>
+        <p class="type-body-xs fg-ghost">Frame settings only. They never change the component's own CSS. The class lets one frame show a dark theme (Tailwind <code class="type-code-xs">dark</code>); other attributes, like <code class="type-code-xs">data-theme</code>, can be set in the canvas file.</p>
+      </PanelSection>
 
-      <section class="row-actions">
-        <button @click="copyFrame(id())">Duplicate</button>
-        <button title="Zoom to this frame" @click="fitFrames(id())">Zoom to</button>
-        <button class="danger" @click="removeFrame(id())">Delete frame</button>
-      </section>
+      <PanelSection>
+        <div class="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" @click="copyFrame(id())"><Copy /> Duplicate</Button>
+          <Button variant="outline" size="sm" title="Zoom to this frame" @click="fitFrames(id())"><Focus /> Zoom to</Button>
+          <Button variant="destructive" size="sm" @click="removeFrame(id())"><Trash2 /> Delete</Button>
+        </div>
+      </PanelSection>
     </template>
 
     <template v-else-if="state.current">
-      <header>
-        <strong>Canvas</strong>
-        <span class="muted">{{ state.current }}</span>
+      <header class="flex flex-col gap-1.5 border-b p-3">
+        <strong class="type-heading-4">Canvas</strong>
+        <span class="type-code-xs fg-ghost truncate">{{ state.current }}</span>
       </header>
-      <section>
-        <p>{{ state.canvas?.frames.length ?? 0 }} frame(s)</p>
-        <p class="hint">Click a frame's title bar to select it. Drag the title bar to move it, and drag its edges to resize.</p>
-        <button @click="resetView">Reset view</button>
-      </section>
-      <section>
-        <h4>Shortcuts (as in Figma)</h4>
-        <dl class="keys">
-          <dt>Undo, redo</dt><dd>⌘Z, ⇧⌘Z</dd>
-          <dt>Duplicate</dt><dd>⌘D, or Alt+drag</dd>
-          <dt>Copy, paste</dt><dd>⌘C, ⌘V</dd>
-          <dt>Rename</dt><dd>⌘R</dd>
-          <dt>Delete, deselect</dt><dd>⌫, Esc</dd>
-          <dt>Nudge 1 / 10 px</dt><dd>Arrows, ⇧ Arrows</dd>
-          <dt>Next frame</dt><dd>Tab, ⇧Tab</dd>
-          <dt>Fit / selection / 100%</dt><dd>⇧1, ⇧2, ⇧0</dd>
-          <dt>Zoom in, out</dt><dd>⌘+, ⌘−</dd>
-          <dt>Pan</dt><dd>Space+drag</dd>
-          <dt>Constrain, keep ratio</dt><dd>⇧ while dragging</dd>
-          <dt>Add design frame</dt><dd>F</dd>
-          <dt>Hide panels</dt><dd>⌘\</dd>
+      <PanelSection>
+        <div class="flex items-center gap-2">
+          <Badge variant="neutral">{{ state.canvas?.frames.length ?? 0 }} frame{{ state.canvas?.frames.length === 1 ? '' : 's' }}</Badge>
+        </div>
+        <p class="type-body-s fg-ghost">Click a frame's title to select it. Drag the title to move it, and drag its edges to resize.</p>
+        <Button variant="outline" size="sm" class="self-start" @click="resetView">Reset view</Button>
+      </PanelSection>
+      <PanelSection title="Shortcuts (as in Figma)">
+        <dl class="flex flex-col gap-1.5">
+          <div v-for="[label, keys] in shortcuts" :key="label" class="flex items-center justify-between gap-3">
+            <dt class="type-body-xs fg-ghost">{{ label }}</dt>
+            <dd class="flex flex-wrap justify-end gap-1"><Kbd v-for="k in keys" :key="k">{{ k }}</Kbd></dd>
+          </div>
         </dl>
-        <p class="hint">Ctrl instead of ⌘ on Windows and Linux.</p>
-      </section>
-      <section class="row-actions">
-        <button
-          class="danger"
+        <p class="type-body-xs fg-ghost">Ctrl instead of ⌘ on Windows and Linux.</p>
+      </PanelSection>
+      <PanelSection>
+        <Button
+          variant="destructive"
+          size="sm"
+          class="self-start"
           title="Deletes this canvas's layout file only. Application source files are never touched."
           @click="removeCanvas"
-        >
-          Delete canvas
-        </button>
-      </section>
+        ><Trash2 /> Delete canvas</Button>
+      </PanelSection>
     </template>
   </aside>
 </template>

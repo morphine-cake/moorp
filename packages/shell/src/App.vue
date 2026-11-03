@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 import { TooltipProvider } from 'reka-ui'
+import { X } from 'lucide-vue-next'
+import Button from '@/components/ui/Button.vue'
 import UiKit from './UiKit.vue'
 import CanvasView from './components/CanvasView.vue'
 import PropertiesPanel from './components/PropertiesPanel.vue'
@@ -61,21 +63,21 @@ onUnmounted(() => {
 
 <template>
   <TooltipProvider :delay-duration="400" :skip-delay-duration="200">
-  <UiKit v-if="showKit" />
-  <div v-else class="app" :class="{ zen: state.hideUI }">
-    <Sidebar />
-    <main class="stage">
-      <CanvasView v-if="state.current" />
-      <div v-else class="empty-state">
-        <h2>No canvas open</h2>
-        <p>Create a canvas from the sidebar to start arranging live frames.</p>
-      </div>
-      <div v-if="state.error" class="banner" role="alert">
-        <span>{{ state.error }}</span>
-        <button class="link" @click="dismissError">Dismiss</button>
-      </div>
-    </main>
-    <PropertiesPanel />
-  </div>
+    <UiKit v-if="showKit" />
+    <div v-else class="app bg-base fg-base grid h-full grid-cols-[260px_minmax(0,1fr)_300px]" :class="{ zen: state.hideUI }">
+      <Sidebar />
+      <main class="stage relative min-w-0 overflow-hidden">
+        <CanvasView v-if="state.current" />
+        <div v-else class="grid h-full place-content-center gap-1 p-6 text-center">
+          <h2 class="type-heading-2">No canvas open</h2>
+          <p class="type-body-m fg-ghost">Create a canvas from the sidebar to start arranging live frames.</p>
+        </div>
+        <div v-if="state.error" class="bg-error-soft fg-error-strong shadow-elevation-menu type-body-s absolute top-3 left-1/2 z-20 flex max-w-[80%] -translate-x-1/2 items-center gap-2 rounded-xl py-1.5 pr-1.5 pl-3" role="alert">
+          <span>{{ state.error }}</span>
+          <Button variant="ghost" size="icon-xs" aria-label="Dismiss" @click="dismissError"><X /></Button>
+        </div>
+      </main>
+      <PropertiesPanel />
+    </div>
   </TooltipProvider>
 </template>
