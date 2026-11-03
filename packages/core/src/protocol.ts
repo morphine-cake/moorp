@@ -12,6 +12,8 @@ export type PreviewToShell =
   | { protocol: typeof PROTOCOL; type: 'size'; frameId: string; width: number; height: number }
   | { protocol: typeof PROTOCOL; type: 'error'; frameId: string; message: string }
   | { protocol: typeof PROTOCOL; type: 'hmr'; frameId: string }
+  /** Pinch / ctrl+wheel inside a frame, forwarded so the canvas can zoom. Coordinates are in the iframe's own CSS pixels. */
+  | { protocol: typeof PROTOCOL; type: 'zoom'; frameId: string; deltaY: number; clientX: number; clientY: number }
 
 export function isProtocolMessage(data: unknown): data is ShellToPreview | PreviewToShell {
   return typeof data === 'object' && data !== null && (data as { protocol?: unknown }).protocol === PROTOCOL

@@ -50,9 +50,17 @@ export function startPreview({ load, setup, root }: PreviewOptions): () => void 
       app = null
     }
   }
+  // Plain scrolling stays with the component; only pinch / ctrl+wheel is handed to the canvas.
+  const onWheel = (e: WheelEvent) => {
+    if (!e.ctrlKey && !e.metaKey) return
+    e.preventDefault()
+    post({ type: 'zoom', deltaY: e.deltaY, clientX: e.clientX, clientY: e.clientY } as never)
+  }
   window.addEventListener('message', onMessage)
+  window.addEventListener('wheel', onWheel, { passive: false })
   return () => {
     window.removeEventListener('message', onMessage)
+    window.removeEventListener('wheel', onWheel)
     observer.disconnect()
     app?.unmount()
   }

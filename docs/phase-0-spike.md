@@ -56,4 +56,20 @@ Findings:
 - **Frame presentation is not applied yet.** `padding`, `alignment` and `overflow` are in the manifest but only `background` is used by the spike shell.
 - **Manifest reconcile.** The shell keeps frames across manifest edits and only recreates a frame when its type, source, scenario or hug mode changes, so unrelated frames keep their state.
 
-Not run: 1, 6, 7, 8, 9. Exit gate status: 2, 3, 4 and 5 pass, with the caveat above on 5.
+### Experiment 7 — gesture arbitration (synthetic events)
+
+| Gesture | Result |
+| --- | --- |
+| Wheel on empty canvas | Pans the canvas. |
+| Ctrl/pinch wheel on empty canvas | Zooms around the cursor (scale clamped to 0.1–4). |
+| Plain wheel inside a frame | Stays with the frame; the canvas does not move. |
+| Ctrl/pinch wheel inside a frame | Forwarded to the shell as a `zoom` message (iframe coordinates, converted using the iframe rect and canvas scale) and zooms the canvas. |
+| Drag on empty canvas | Pans. |
+| Drag a frame's toolbar | Moves the frame by `dx / scale`, correct at 0.1×. |
+| Iframes during a drag | `pointer-events: none` while dragging and restored afterwards, so the pointer is never swallowed. |
+
+Chosen approach: the shell owns wheel and drag on the canvas and toolbars; each iframe keeps its own scroll, clicks and typing, and only forwards pinch / ctrl+wheel. The canvas is a CSS-transformed layer (`translate` + `scale`).
+
+Limits: all checks used dispatched events, not a real trackpad or mouse, so wheel sensitivity is unverified. A mouse-wheel notch (deltaY ±100) zooms about 2.7× with the current `exp(-deltaY * 0.01)`, which is too coarse; the delta needs normalising (line vs pixel mode, clamp) before it feels right. Frame moves are not persisted back to the manifest yet, and a manifest edit resets a moved frame to its saved `x`/`y`. Keyboard modifiers (space-drag, middle button) and touch are untested.
+
+Not run: 1, 6, 8, 9. Exit gate status: 2, 3, 4 and 5 pass, with the caveat above on 5.
