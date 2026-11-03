@@ -108,4 +108,36 @@ The editor is started with `execFile` (no shell) and the path as a single argume
 
 Limits: the editor is a command string from an environment variable split on spaces, so editors that need arguments with spaces are not supported. Line/column navigation and editor detection (VS Code, Cursor, JetBrains) are not implemented. The `Origin` check protects against other websites, not against other local processes. This endpoint belongs in the future CLI package rather than the playground.
 
-Not run: 6, 9. Exit gate status: 2, 3, 4 and 5 pass, with the caveat above on 5.
+### Experiment 6 — hug sizing across canvas zoom
+
+`Counter` hug frames on the main canvas, zoomed 1× → 0.25× → 4× → 0.1× → 1×.
+
+| Check | Result |
+| --- | --- |
+| Hug size at each zoom | Pass. 93 × 35 px every time; zoom is a CSS transform on the canvas layer and does not change what the iframe measures. |
+| Feedback loop | Pass. No further `size` messages in the 3 s after zooming stopped. |
+| Content change | Pass. Text growing to `Count: 1000000000` widened the frame to 121 px; resetting it returned 93 px. |
+
+Limits: content sized relative to its container (`width: 100%`, `vw` units) was not tested; with an `inline-block` root such content can collapse or depend on the 2000 px start size, so hug needs a documented rule for it. Fixed-size frames were not re-checked at extreme zoom.
+
+### Experiment 9 — 20 live frames
+
+Same shell, `?canvas=Perf/Design20` (20 hug Counter frames) and `?canvas=Perf/Page20` (20 page frames of `demo.html`, 280 × 220 px), in the Browser pane, 4 s after load. Frame time was measured with `requestAnimationFrame` while synthetic wheel events panned the canvas for 2 s.
+
+| | 20 Design Frames | 20 Page Frames |
+| --- | --- | --- |
+| All frames ready | 238 ms | all 20 loaded within 4 s |
+| JS heap (shared isolate) | 15.5 MB | 25.3 MB |
+| Frame time panning at 100% | avg 8.3 ms, p95 9.2 ms | avg 8.3 ms, p95 8.4 ms |
+| Frame time with all 20 visible (~0.17×) | avg 8.3 ms, p95 9.2 ms | avg 8.3 ms, p95 9.3 ms |
+
+8.3 ms is the display's refresh interval (120 Hz), so panning was not limited by 20 frames of this size.
+
+Findings and limits:
+
+- The test components are tiny. A real app page or a component with heavy providers and images will cost much more per frame, so this shows the canvas and iframe overhead is small, not that 20 real frames are cheap. Re-run against a real project before fixing a budget.
+- Synthetic wheel events do not exercise layout inside the frames; frames were idle while panning.
+- `frame-check` fetches every Page Frame URL once more, so each page is requested twice (40 requests for 20 frames). Cache the result per URL, and only re-check on URL change or on a failed load.
+- Suspending or snapshotting offscreen frames is not needed at this scale; revisit with real content.
+
+Not run: none. Exit gate status: 2, 3, 4 and 5 pass, with the caveat above on 5. All nine experiments now have a recorded result.

@@ -64,7 +64,7 @@ function showError(msg: string) {
   setTimeout(() => (banner.style.display = 'none'), 4000)
 }
 
-const log = (...a: unknown[]) => ((window as unknown as { __moorp: unknown[][] }).__moorp ??= []).push(a)
+const log = (...a: unknown[]) => ((window as unknown as { __moorp: unknown[][] }).__moorp ??= []).push([...a, performance.now()])
 
 function render(canvas: Canvas) {
   const errors = validateCanvas(canvas)
@@ -165,5 +165,8 @@ window.addEventListener('message', (e) => {
   }
 })
 
-render(Object.values(canvases)[0] as Canvas)
+// ?canvas=<path fragment> picks a canvas; default is the first one.
+const wanted = new URLSearchParams(location.search).get('canvas')
+const key = Object.keys(canvases).find((k) => (wanted ? k.includes(wanted) : true))
+render(canvases[key!] as Canvas)
 import.meta.hot?.accept()

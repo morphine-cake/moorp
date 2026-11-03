@@ -1,0 +1,245 @@
+{
+ "version": 1,
+ "frames": [
+  {
+   "id": "frame-1",
+   "name": "Counter 1",
+   "type": "design",
+   "source": {
+    "file": "src/components/Counter.vue"
+   },
+   "x": 0,
+   "y": 0,
+   "width": "hug",
+   "height": "hug"
+  },
+  {
+   "id": "frame-2",
+   "name": "Counter 2",
+   "type": "design",
+   "source": {
+    "file": "src/components/Counter.vue"
+   },
+   "x": 300,
+   "y": 0,
+   "width": "hug",
+   "height": "hug"
+  },
+  {
+   "id": "frame-3",
+   "name": "Counter 3",
+   "type": "design",
+   "source": {
+    "file": "src/components/Counter.vue"
+   },
+   "x": 600,
+   "y": 0,
+   "width": "hug",
+   "height": "hug"
+  },
+  {
+   "id": "frame-4",
+   "name": "Counter 4",
+   "type": "design",
+   "source": {
+    "file": "src/components/Counter.vue"
+   },
+   "x": 900,
+   "y": 0,
+   "width": "hug",
+   "height": "hug"
+  },
+  {
+   "id": "frame-5",
+   "name": "Counter 5",
+   "type": "design",
+   "source": {
+    "file": "src/components/Counter.vue"
+   },
+   "x": 1200,
+   "y": 0,
+   "width": "hug",
+   "height": "hug"
+  },
+  {
+   "id": "frame-6",
+   "name": "Counter 6",
+   "type": "design",
+   "source": {
+    "file": "src/components/Counter.vue"
+   },
+   "x": 0,
+   "y": 240,
+   "width": "hug",
+   "height": "hug"
+  },
+  {
+   "id": "frame-7",
+   "name": "Counter 7",
+   "type": "design",
+   "source": {
+    "file": "src/components/Counter.vue"
+   },
+   "x": 300,
+   "y": 240,
+   "width": "hug",
+   "height": "hug"
+  },
+  {
+   "id": "frame-8",
+   "name": "Counter 8",
+   "type": "design",
+   "source": {
+    "file": "src/components/Counter.vue"
+   },
+   "x": 600,
+   "y": 240,
+   "width": "hug",
+   "height": "hug"
+  },
+  {
+   "id": "frame-9",
+   "name": "Counter 9",
+   "type": "design",
+   "source": {
+    "file": "src/components/Counter.vue"
+   },
+   "x": 900,
+   "y": 240,
+   "width": "hug",
+   "height": "hug"
+  },
+  {
+   "id": "frame-10",
+   "name": "Counter 10",
+   "type": "design",
+   "source": {
+    "file": "src/components/Counter.vue"
+   },
+   "x": 1200,
+   "y": 240,
+   "width": "hug",
+   "height": "hug"
+  },
+  {
+   "id": "frame-11",
+   "name": "Counter 11",
+   "type": "design",
+   "source": {
+    "file": "src/components/Counter.vue"
+   },
+   "x": 0,
+   "y": 480,
+   "width": "hug",
+   "height": "hug"
+  },
+  {
+   "id": "frame-12",
+   "name": "Counter 12",
+   "type": "design",
+   "source": {
+    "file": "src/components/Counter.vue"
+   },
+   "x": 300,
+   "y": 480,
+   "width": "hug",
+   "height": "hug"
+  },
+  {
+   "id": "frame-13",
+   "name": "Counter 13",
+   "type": "design",
+   "source": {
+    "file": "src/components/Counter.vue"
+   },
+   "x": 600,
+   "y": 480,
+   "width": "hug",
+   "height": "hug"
+  },
+  {
+   "id": "frame-14",
+   "name": "Counter 14",
+   "type": "design",
+   "source": {
+    "file": "src/components/Counter.vue"
+   },
+   "x": 900,
+   "y": 480,
+   "width": "hug",
+   "height": "hug"
+  },
+  {
+   "id": "frame-15",
+   "name": "Counter 15",
+   "type": "design",
+   "source": {
+    "file": "src/components/Counter.vue"
+   },
+   "x": 1200,
+   "y": 480,
+   "width": "hug",
+   "height": "hug"
+  },
+  {
+   "id": "frame-16",
+   "name": "Counter 16",
+   "type": "design",
+   "source": {
+    "file": "src/components/Counter.vue"
+   },
+   "x": 0,
+   "y": 720,
+   "width": "hug",
+   "height": "hug"
+  },
+  {
+   "id": "frame-17",
+   "name": "Counter 17",
+   "type": "design",
+   "source": {
+    "file": "src/components/Counter.vue"
+   },
+   "x": 300,
+   "y": 720,
+   "width": "hug",
+   "height": "hug"
+  },
+  {
+   "id": "frame-18",
+   "name": "Counter 18",
+   "type": "design",
+   "source": {
+    "file": "src/components/Counter.vue"
+   },
+   "x": 600,
+   "y": 720,
+   "width": "hug",
+   "height": "hug"
+  },
+  {
+   "id": "frame-19",
+   "name": "Counter 19",
+   "type": "design",
+   "source": {
+    "file": "src/components/Counter.vue"
+   },
+   "x": 900,
+   "y": 720,
+   "width": "hug",
+   "height": "hug"
+  },
+  {
+   "id": "frame-20",
+   "name": "Counter 20",
+   "type": "design",
+   "source": {
+    "file": "src/components/Counter.vue"
+   },
+   "x": 1200,
+   "y": 720,
+   "width": "hug",
+   "height": "hug"
+  }
+ ]
+}
