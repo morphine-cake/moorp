@@ -58,6 +58,12 @@ if (import.meta.hot) import.meta.hot.data.frames = frames
 const banner = document.getElementById('moorp-error') ?? host.parentElement!.insertBefore(Object.assign(document.createElement('div'), { id: 'moorp-error' }), host)
 banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:10;background:#fee2e2;color:#991b1b;font:12px system-ui;padding:4px 8px;display:none'
 
+function showError(msg: string) {
+  banner.textContent = msg
+  banner.style.display = 'block'
+  setTimeout(() => (banner.style.display = 'none'), 4000)
+}
+
 const log = (...a: unknown[]) => ((window as unknown as { __moorp: unknown[][] }).__moorp ??= []).push(a)
 
 function render(canvas: Canvas) {
@@ -101,6 +107,15 @@ function createFrame(f: Frame): Entry {
     box.style.left = parseFloat(box.style.left) + dx / view.s + 'px'
     box.style.top = parseFloat(box.style.top) + dy / view.s + 'px'
   }))
+  const open = document.createElement('button')
+  open.textContent = 'Open source'
+  open.hidden = !(f.type === 'design' && f.source)
+  open.style.cssText = 'margin-left:8px;font:11px system-ui;cursor:pointer'
+  open.addEventListener('pointerdown', (e) => e.stopPropagation())
+  open.addEventListener('click', async () => {
+    const r = await fetch('/__moorp/open-source', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ file: f.source?.file }) })
+    if (!r.ok) showError(`Open source failed: ${((await r.json()) as { error: string }).error}`)
+  })
   const iframe = document.createElement('iframe')
   iframe.dataset.frameId = f.id
   iframe.style.border = '0'
@@ -126,9 +141,11 @@ function createFrame(f: Frame): Entry {
   iframe.addEventListener('load', () => {
     if (f.type === 'design' && f.source) iframe.contentWindow!.postMessage({ protocol: PROTOCOL, type: 'init', frameId: f.id, source: f.source, scenario: f.scenario, hug }, '*')
   })
+  const title = document.createElement('span')
+  bar.append(title, open)
   box.append(bar, iframe)
   world.append(box)
-  const entry = { box, bar, iframe, signature: sig(f), hugW: hug && f.width === 'hug', hugH: hug && f.height === 'hug' }
+  const entry = { box, bar: title, iframe, signature: sig(f), hugW: hug && f.width === 'hug', hugH: hug && f.height === 'hug' }
   frames.set(f.id, entry)
   return entry
 }

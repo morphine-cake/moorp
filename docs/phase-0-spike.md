@@ -88,4 +88,24 @@ How blocking is detected: a browser cannot read why a cross-origin iframe stayed
 
 Limits: only same-origin pages and one blocked header were tested, not a real third-party site or a framework dev server. The check endpoint is an open fetch proxy on the dev server (server-side request forgery risk if it were ever exposed beyond localhost), so it needs an allow-list of the project's own origins before it ships. A page that blocks embedding with JavaScript frame-busting is not detected. The core validator now requires `url` on page frames.
 
-Not run: 6, 8, 9. Exit gate status: 2, 3, 4 and 5 pass, with the caveat above on 5.
+### Experiment 8 — source navigation round trip
+
+An "Open source" button on the toolbar of every frame with a bound source calls `POST /__moorp/open-source { file }` on the dev server, which opens the file in the editor named by `MOORP_EDITOR` (default `code`). Code is in `playground/open-source.ts`.
+
+| Case | Result |
+| --- | --- |
+| Valid project file | Pass. The editor was started with the absolute path; one invocation per click, also from the real button (6 bound design frames show it, page and blank frames do not). |
+| `../package.json` | Refused, 403. |
+| Absolute path (`/etc/hosts`) | Refused, 403. |
+| Symlink pointing outside the project | Refused, 403 (unit test; the path is resolved with `realpath` before the check). |
+| `node_modules/...` | Refused (pnpm's links resolve outside the project, and the path is also blocked by name). |
+| Extension not on the allow-list (`.vue .ts .tsx .js .jsx .css .json .html .svelte`) | Refused, 403. |
+| Missing file, bad JSON, non-string `file` | 404, 400, 400. |
+| Request from another origin, or with no `Origin` header | Refused, 403: any web page can send requests to localhost, so the `Origin` host must equal the server's own. |
+| Non-JSON content type, or GET | 415, 405. |
+
+The editor is started with `execFile` (no shell) and the path as a single argument, so a file name cannot inject commands.
+
+Limits: the editor is a command string from an environment variable split on spaces, so editors that need arguments with spaces are not supported. Line/column navigation and editor detection (VS Code, Cursor, JetBrains) are not implemented. The `Origin` check protects against other websites, not against other local processes. This endpoint belongs in the future CLI package rather than the playground.
+
+Not run: 6, 9. Exit gate status: 2, 3, 4 and 5 pass, with the caveat above on 5.

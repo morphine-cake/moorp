@@ -1,5 +1,6 @@
 import { defineConfig, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import { openSourcePlugin } from './open-source'
 
 // Spike-only dev middleware: a page that refuses embedding, and a header check for Page Frame URLs.
 function moorpDev(): Plugin {
@@ -34,6 +35,6 @@ function moorpDev(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [vue(), moorpDev()],
+  plugins: [vue(), moorpDev(), openSourcePlugin(process.cwd())],
   build: { rollupOptions: { input: { index: 'index.html', preview: 'preview.html', demo: 'demo.html' } } },
 })
