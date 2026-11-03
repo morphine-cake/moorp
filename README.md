@@ -14,22 +14,25 @@ pnpm --filter @moorp/playground dev
 
 Then open http://localhost:5173/__moorp/. The playground is a small Vue + Vite project with a few components and canvases.
 
-In your own Vue + Vite project (once published), the flow is:
+In your own Vue 3 + Vite project, install the alpha and run:
 
 ```bash
-moorp init   # creates .visual-canvas/ with a preview setup and a sample canvas
-moorp dev    # starts your Vite dev server with the canvas at /__moorp/
+npm i -D moorp@alpha @moorp/vue@alpha
+npx moorp init   # creates .visual-canvas/ with a preview setup and a sample canvas
+npx moorp dev    # starts your Vite dev server with the canvas at /__moorp/
 ```
+
+Use the `@alpha` tag: `moorp@latest` is still a name-reservation placeholder without a CLI. Then import your global CSS in `.visual-canvas/preview.ts` (the generated file shows where), and add frames in the canvas or by editing `.visual-canvas/canvases/*.canvas.json`.
 
 ## Packages
 
 - `@moorp/core`: manifest types, validation and the preview protocol (no UI framework dependency).
 - `@moorp/vue`: Vue adapter, the preview entry that mounts a component and talks to the shell.
 - `@moorp/shell`: the canvas app (sidebar, canvas, properties panel), built to static files.
-- `moorp`: the CLI and Vite plugin. Not published yet; `moorp@0.0.0` on npm is a name-reservation placeholder.
+- `moorp`: the CLI and Vite plugin.
 - `playground/`: a sample project that runs on `moorp dev`.
 
-The `@moorp` npm organization is reserved.
+Versions move together (`0.1.0-alpha.N`). The `@moorp` npm organization is reserved. See [docs/releasing.md](docs/releasing.md) for how a release is checked and published.
 
 ## Development
 
@@ -37,6 +40,7 @@ The `@moorp` npm organization is reserved.
 pnpm build       # core, adapter, shell, then the CLI (in dependency order)
 pnpm typecheck
 pnpm test
+pnpm release:check   # full pre-publish check: build, tests, tarballs, clean install, moorp dev
 ```
 
 ## License

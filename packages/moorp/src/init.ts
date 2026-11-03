@@ -45,7 +45,7 @@ export function runInit(root: string, { force = false }: { force?: boolean } = {
   canvas.frames.push({ id: nextFrameId(canvas), name: 'Component', type: 'design', source: null, x: 0, y: 0, width: 'hug', height: 'hug' })
   write('.visual-canvas/canvases/Welcome.canvas.json', JSON.stringify(canvas, null, 2) + '\n')
 
-  if (!deps['@moorp/vue']) result.notes.push('Install the Vue adapter: add `@moorp/vue` to devDependencies.')
+  if (!deps['@moorp/vue']) result.notes.push('Install the Vue adapter: `npm i -D @moorp/vue@alpha` (or pnpm/yarn add -D).')
   if (!deps.vite) result.notes.push('No "vite" dependency found: Moorp runs on your Vite dev server.')
   if (!deps['@vitejs/plugin-vue']) result.notes.push('No "@vitejs/plugin-vue" found: Vue components will not compile in previews.')
   return result

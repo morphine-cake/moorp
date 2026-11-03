@@ -1,6 +1,6 @@
 {
   "name": "@moorp/core",
-  "version": "0.0.0",
+  "version": "0.1.0-alpha.0",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
@@ -18,5 +18,18 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/morphine-cake/moorp.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/morphine-cake/moorp#readme",
+  "bugs": {
+    "url": "https://github.com/morphine-cake/moorp/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "alpha"
+  }
 }
