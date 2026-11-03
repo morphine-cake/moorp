@@ -41,4 +41,19 @@ Exit gate: experiments 2, 3, 4 and 5 pass. Others may be recorded as known risks
 
 ## Results
 
-_Not started._
+Run on 2026-11-03 against `playground/` (Vue 3.5 + Vite 6), shell at `/`, per-frame preview at `/preview.html`.
+
+| # | Experiment | Result |
+| --- | --- | --- |
+| 2 | Design Frame, one component | Pass. `Counter.vue` mounts through `@moorp/vue` in an iframe with global CSS (`--accent`) and a router from `.visual-canvas/preview.ts`; frames report `ready` and `size`. |
+| 3 | HMR with many frames | Pass. Editing `Counter.vue` updated all 5 iframes in about 2 s, with no iframe reload (same document, `timeOrigin` unchanged) and per-frame state kept. |
+| 4 | Independent state | Pass. Clicking frame 1 left frame 2 and the others unchanged. |
+| 5 | Manifest round trip | Partial. A blank frame (`source: null`) renders as an empty frame and the manifest validates. Not yet tested: an AI agent binding a source, and a malformed edit. |
+
+Findings:
+
+- **Hug sizing is wrong.** `size` reports the iframe's own width (120 px) because the preview root is a block element that fills the iframe. Hug needs the root measured as `fit-content` (or the first child), while Fixed frames should keep filling. Fix before experiment 6.
+- **Frame presentation is not applied yet.** `padding`, `alignment` and `overflow` are in the manifest but only `background` is used by the spike shell.
+- **Invalid manifests are only shown as text** in the shell; the "previous layout survives" requirement of experiment 5 is not implemented.
+
+Not run: 1, 6, 7, 8, 9. Exit gate status: 2, 3 and 4 pass; 5 is partial.
