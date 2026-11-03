@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { addFrame, state } from '../store'
+import { addFrame, fitFrames, state } from '../store'
 import FrameBox from './FrameBox.vue'
 
+const MIN_ZOOM = 0.02
 const host = ref<HTMLElement | null>(null)
 const frames = computed(() => state.canvas?.frames ?? [])
 
@@ -14,7 +15,7 @@ function wheelDelta(deltaY: number, deltaMode = 0) {
 
 function zoomAt(cx: number, cy: number, deltaY: number, deltaMode = 0) {
   const v = state.view
-  const next = Math.min(4, Math.max(0.1, v.s * Math.exp(-wheelDelta(deltaY, deltaMode) * 0.01)))
+  const next = Math.min(4, Math.max(MIN_ZOOM, v.s * Math.exp(-wheelDelta(deltaY, deltaMode) * 0.01)))
   v.tx = cx - ((cx - v.tx) * next) / v.s
   v.ty = cy - ((cy - v.ty) * next) / v.s
   v.s = next
@@ -88,6 +89,7 @@ onUnmounted(() => observer?.disconnect())
     <div class="canvas-tools">
       <button @click="addFrame('design')">+ Design frame</button>
       <button @click="addFrame('page')">+ Page frame</button>
+      <button title="Zoom to fit all frames" @click="fitFrames()">Fit</button>
       <span class="zoom">{{ Math.round(state.view.s * 100) }}%</span>
     </div>
 

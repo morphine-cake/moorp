@@ -1,4 +1,4 @@
-import { createApp, type App, type Component } from 'vue'
+import { createApp, h, reactive, type App, type Component } from 'vue'
 import { PROTOCOL, isProtocolMessage, type Presentation, type PreviewToShell } from '@moorp/core'
 
 export type ComponentLoader = (file: string, exportName?: string) => Promise<Component>
@@ -25,9 +25,31 @@ export function startPreview({ load, setup, root }: PreviewOptions): () => void 
   })
 
   let hug = false
+  // Reactive so a props edit re-renders the mounted component instead of remounting it.
+  const props = reactive<Record<string, unknown>>({})
+  function setProps(next: Record<string, unknown> = {}) {
+    for (const k of Object.keys(props)) if (!(k in next)) delete props[k]
+    Object.assign(props, next)
+  }
+  /** `class` is additive (other classes on <html> stay); other attributes are set or removed. */
+  function applyHtmlAttributes(html: HTMLElement, next: Record<string, string>) {
+    const tokens = (v?: string) => (v ?? '').split(/\s+/).filter(Boolean)
+    for (const [name, value] of Object.entries(appliedAttrs)) {
+      if (name === 'class') tokens(value).filter((t) => !tokens(next.class).includes(t)).forEach((t) => html.classList.remove(t))
+      else if (!(name in next)) html.removeAttribute(name)
+    }
+    for (const [name, value] of Object.entries(next)) {
+      if (name === 'class') tokens(value).forEach((t) => html.classList.add(t))
+      else html.setAttribute(name, value)
+    }
+    appliedAttrs = { ...next }
+  }
+
   /** Frame presentation lives in the preview document, around the component, never in the component's own CSS. */
+  let appliedAttrs: Record<string, string> = {}
   function applyPresentation(p: Presentation = {}) {
     const html = document.documentElement
+    applyHtmlAttributes(html, p.htmlAttributes ?? {})
     html.style.background = p.background ?? ''
     html.style.overflow = p.overflow === 'hidden' ? 'hidden' : p.overflow === 'scroll' ? 'scroll' : ''
     root.style.boxSizing = 'border-box'
@@ -47,7 +69,7 @@ export function startPreview({ load, setup, root }: PreviewOptions): () => void 
     app?.unmount()
     try {
       const component = await load(file, exportName)
-      app = createApp(component)
+      app = createApp({ render: () => h(component, props) })
       app.config.errorHandler = (err) => post({ type: 'error', message: String(err) } as never)
       setup?.(app)
       app.mount(root)
@@ -65,9 +87,11 @@ export function startPreview({ load, setup, root }: PreviewOptions): () => void 
       frameId = msg.frameId
       hug = msg.hug
       applyPresentation(msg.presentation)
+      setProps(msg.props)
       void mount(msg.source.file, msg.source.export)
     } else if (msg.type === 'update') {
       applyPresentation(msg.presentation)
+      setProps(msg.props)
     } else if (msg.type === 'dispose') {
       app?.unmount()
       app = null

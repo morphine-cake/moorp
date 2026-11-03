@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { Presentation } from '@moorp/core'
-import { copyFrame, deleteCanvas, patchFrame, removeFrame, resetView, selectedFrame as frame, state } from '../store'
+import { copyFrame, deleteCanvas, fitFrames, patchFrame, removeFrame, resetView, selectedFrame as frame, state } from '../store'
 
 const isDesign = computed(() => frame.value?.type === 'design')
 const presets = [
@@ -31,6 +31,42 @@ function setUrl(e: Event) {
 function removeCanvas() {
   const path = state.current
   if (path && window.confirm(`Delete canvas “${path}”? Source files are not touched.`)) void deleteCanvas(path)
+}
+
+// Props are edited as JSON text; only a valid object replaces the frame's props.
+const propsText = ref('')
+const propsError = ref('')
+watch(
+  () => [frame.value?.id, JSON.stringify(frame.value?.props ?? null)],
+  () => {
+    propsText.value = frame.value?.props ? JSON.stringify(frame.value.props, null, 2) : ''
+    propsError.value = ''
+  },
+  { immediate: true },
+)
+function setProps() {
+  const text = propsText.value.trim()
+  if (!text) {
+    propsError.value = ''
+    return patchFrame(id(), { props: undefined })
+  }
+  try {
+    const value = JSON.parse(text) as unknown
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) throw new Error('Props must be a JSON object, like { "isDark": true }')
+    propsError.value = ''
+    patchFrame(id(), { props: Object.keys(value).length ? (value as Record<string, unknown>) : undefined })
+  } catch (e) {
+    propsError.value = e instanceof Error ? e.message : String(e)
+  }
+}
+
+/** The `class` attribute on the preview's <html> element (e.g. Tailwind's `dark`); other attributes stay as they are in the file. */
+function setHtmlClass(e: Event) {
+  const value = (e.target as HTMLInputElement).value.trim()
+  const attrs = { ...frame.value?.presentation?.htmlAttributes }
+  if (value) attrs.class = value
+  else delete attrs.class
+  setPres({ htmlAttributes: Object.keys(attrs).length ? attrs : undefined })
 }
 
 const padding = computed(() => frame.value?.presentation?.padding ?? 0)
@@ -93,6 +129,13 @@ const padding = computed(() => frame.value?.presentation?.padding ?? 0)
       </section>
 
       <section v-if="isDesign">
+        <h4>Props</h4>
+        <textarea v-model="propsText" rows="4" spellcheck="false" placeholder='{ "isDark": true }' @change="setProps" />
+        <p v-if="propsError" class="hint error-text">{{ propsError }}</p>
+        <p v-else class="hint">JSON passed to the component as props. Several frames can show one component in different states.</p>
+      </section>
+
+      <section v-if="isDesign">
         <h4>Frame presentation</h4>
         <label>Background
           <span class="pair">
@@ -116,11 +159,15 @@ const padding = computed(() => frame.value?.presentation?.padding ?? 0)
             <option value="">Visible</option><option value="hidden">Hidden</option><option value="scroll">Scroll</option>
           </select>
         </label>
-        <p class="hint">These are frame settings only. They never change the component's own CSS.</p>
+        <label>Class on &lt;html&gt;
+          <input :value="frame.presentation?.htmlAttributes?.class ?? ''" placeholder="dark" @change="setHtmlClass" />
+        </label>
+        <p class="hint">Frame settings only. They never change the component's own CSS. The class lets one frame show a dark theme (Tailwind <code>dark</code>); other attributes, like <code>data-theme</code>, can be set in the canvas file.</p>
       </section>
 
       <section class="row-actions">
         <button @click="copyFrame(id())">Duplicate</button>
+        <button title="Zoom to this frame" @click="fitFrames(id())">Zoom to</button>
         <button class="danger" @click="removeFrame(id())">Delete frame</button>
       </section>
     </template>

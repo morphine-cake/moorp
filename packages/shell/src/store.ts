@@ -122,6 +122,11 @@ export async function init() {
     const fromHash = decodeURIComponent(location.hash.replace(/^#\/?/, ''))
     const first = state.canvases.includes(fromHash) ? fromHash : (state.canvases[0] ?? null)
     await openCanvas(first)
+    // Back/forward and edited URLs switch canvases too.
+    window.addEventListener('hashchange', () => {
+      const p = decodeURIComponent(location.hash.replace(/^#\/?/, ''))
+      if (p !== state.current && state.canvases.includes(p)) void openCanvas(p)
+    })
     subscribe((path) => {
       void refreshList()
       if (path === state.current) void loadCanvas(path).catch(fail)
@@ -229,6 +234,28 @@ export function patchFrame(id: string, patch: Partial<Omit<Frame, 'id' | 'presen
       else delete f.presentation
     }
   }, { immediate: persist })
+}
+
+/** Zoom and pan so one frame (or all frames) fills the canvas area, measured from what is on screen. */
+export function fitFrames(id?: string) {
+  const els = [...document.querySelectorAll<HTMLElement>('.frame')].filter((el) => !id || el.dataset.id === id)
+  if (!els.length) return
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity
+  for (const el of els) {
+    const body = el.querySelector<HTMLElement>('.body')!
+    const x = parseFloat(el.style.left)
+    const y = parseFloat(el.style.top)
+    x0 = Math.min(x0, x)
+    y0 = Math.min(y0, y - 28)
+    x1 = Math.max(x1, x + body.offsetWidth)
+    y1 = Math.max(y1, y + body.offsetHeight)
+  }
+  const pad = 48
+  const { w, h } = state.viewport
+  const s = Math.min(4, Math.max(0.02, Math.min((w - 2 * pad) / (x1 - x0), (h - 2 * pad) / (y1 - y0), id ? 2 : 1)))
+  state.view.s = s
+  state.view.tx = (w - (x1 - x0) * s) / 2 - x0 * s
+  state.view.ty = (h - (y1 - y0) * s) / 2 - y0 * s
 }
 
 export function resetView() {

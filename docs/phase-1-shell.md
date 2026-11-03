@@ -27,7 +27,8 @@ Canvases are JSON files in `.visual-canvas/canvases/**.canvas.json`; folders are
 - Sidebar: folders (expand/collapse, remembered), canvases, create (also inside a folder, or with `Folder/Name`), rename by double click, delete from the properties panel (layout file only).
 - Canvas: pan, zoom (clamped 10%–400%), per-canvas view remembered. Empty canvas shows how to start.
 - Frames: add Design or Page frames, select by title bar, move by dragging the title bar, resize from edges and corner (a hug size becomes fixed), rename by double click, duplicate (reference only), delete (canvas only). The toolbar sits outside the preview and keeps a constant on-screen size at any zoom.
-- Properties panel: canvas properties when nothing is selected; for a frame its name, source file or URL, size (Hug/Fixed for design frames, presets for page frames), and presentation (background, padding, alignment, overflow). Presentation is applied around the component, never inside its CSS.
+- Properties panel: canvas properties when nothing is selected; for a frame its name, source file or URL, size (Hug/Fixed for design frames, presets for page frames), props (JSON passed to the component), and presentation (background, padding, alignment, overflow, and a class on the preview's `<html>` for themes). Presentation is applied around the component, never inside its CSS; props and presentation update in place without remounting.
+- Navigation: Fit (all frames), Zoom to (one frame), zoom from 2% to 400%, back/forward between canvases.
 - Previews: always interactive; a design frame without a source shows a placeholder; preview errors and "cannot embed" reasons show on the frame.
 - Persistence: every change is saved after a short debounce; invalid or half-written files keep the last valid layout on screen with a banner naming the problem.
 
@@ -58,5 +59,6 @@ By hand in the Browser pane against `playground/` (real mouse where noted):
 - Concurrent edits are last-writer-wins at whole-file level: the shell ignores incoming changes while its own save is pending, and its save then replaces the file.
 - Frame ids come from the highest existing number, so deleting the newest frame lets its id be reused. Ids are not yet unique across a canvas's history.
 - The `frame-check` fetch and the editor command are limited as described in the Phase 0 notes (local origins or `MOORP_ALLOWED_ORIGINS`; editor from `MOORP_EDITOR`).
+- Presentation and props are validated when a canvas is saved or read (`validateCanvas`).
 - Not built: multi-selection, undo/redo, drag-to-reorder or move canvases between folders, keyboard shortcuts, touch gestures, canvas properties beyond the name and a reset, scenarios and variants UI, nested-element source navigation.
 - Hand-driven tests used synthetic wheel events for zoom; trackpad feel is unchecked.

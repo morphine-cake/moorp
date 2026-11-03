@@ -48,3 +48,22 @@ test('duplicateFrame accepts a proxy (as a reactive store would pass)', () => {
   const proxied = { ...canvas, frames: canvas.frames.map((f) => new Proxy(f, {})) }
   assert.equal(duplicateFrame(proxied, 'frame-1')!.id, 'frame-2')
 })
+
+test('props must be an object when present', () => {
+  const frame = { id: 'frame-1', name: 'A', type: 'design', source: null, x: 0, y: 0, width: 'hug', height: 'hug' }
+  assert.deepEqual(validateCanvas({ version: 1, frames: [{ ...frame, props: { isDark: true } }] }), [])
+  for (const bad of [[], 'x', 3, null]) assert.equal(validateCanvas({ version: 1, frames: [{ ...frame, props: bad }] }).length, 1, String(bad))
+})
+
+test('presentation fields are validated', () => {
+  const frame = { id: 'frame-1', name: 'A', type: 'design', source: null, x: 0, y: 0, width: 'hug', height: 'hug' }
+  const check = (presentation: unknown) => validateCanvas({ version: 1, frames: [{ ...frame, presentation }] })
+  assert.deepEqual(check({ background: '#fff', padding: 16, alignment: 'center', overflow: 'hidden', htmlAttributes: { class: 'dark', 'data-theme': 'dark' } }), [])
+  assert.equal(check({ padding: -1 }).length, 1)
+  assert.equal(check({ alignment: 'left' }).length, 1)
+  assert.equal(check({ overflow: 'auto' }).length, 1)
+  assert.equal(check({ htmlAttributes: { onclick: 'x()' } }).length, 1)
+  assert.equal(check({ htmlAttributes: { 'bad name': 'x' } }).length, 1)
+  assert.equal(check({ htmlAttributes: { class: 3 } }).length, 1)
+  assert.equal(check([]).length, 1)
+})

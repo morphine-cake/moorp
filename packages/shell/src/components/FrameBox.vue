@@ -37,17 +37,21 @@ function init() {
   const f = props.frame
   if (isDesign.value && f.source) {
     iframe.value?.contentWindow?.postMessage(
-      { protocol: PROTOCOL, type: 'init', frameId: f.id, source: plain(f.source), scenario: f.scenario, hug: hugW.value || hugH.value, presentation: plain(f.presentation) },
+      { protocol: PROTOCOL, type: 'init', frameId: f.id, source: plain(f.source), scenario: f.scenario, hug: hugW.value || hugH.value, presentation: plain(f.presentation), props: plain(f.props) },
       '*',
     )
   }
 }
 
+// Presentation and props change in place: the component is updated, not remounted.
 watch(
-  () => props.frame.presentation,
-  (presentation) => {
+  () => [props.frame.presentation, props.frame.props],
+  () => {
     if (isDesign.value && props.frame.source) {
-      iframe.value?.contentWindow?.postMessage({ protocol: PROTOCOL, type: 'update', frameId: props.frame.id, presentation: plain(presentation) }, '*')
+      iframe.value?.contentWindow?.postMessage(
+        { protocol: PROTOCOL, type: 'update', frameId: props.frame.id, presentation: plain(props.frame.presentation), props: plain(props.frame.props) },
+        '*',
+      )
     }
   },
   { deep: true },
@@ -156,7 +160,7 @@ async function openSource() {
 </script>
 
 <template>
-  <div class="frame" :class="{ selected }" :style="{ left: frame.x + 'px', top: frame.y + 'px', width: width + 'px' }">
+  <div class="frame" :data-id="frame.id" :class="{ selected }" :style="{ left: frame.x + 'px', top: frame.y + 'px', width: width + 'px' }">
     <div class="bar" @pointerdown="startMove" @dblclick="startRename">
       <input
         v-if="renaming"

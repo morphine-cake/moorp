@@ -12,6 +12,8 @@ export type Presentation = {
   padding?: number
   alignment?: 'start' | 'center' | 'end'
   overflow?: 'visible' | 'hidden' | 'scroll'
+  /** Attributes set on the preview document's `<html>` element, e.g. `{ "class": "dark" }` or `{ "data-theme": "dark" }`. */
+  htmlAttributes?: Record<string, string>
 }
 
 export type Frame = {
@@ -30,6 +32,8 @@ export type Frame = {
   height: number | 'hug'
   presentation?: Presentation
   scenario?: string
+  /** JSON props passed to the root component of a design frame (for example `{ "isDark": true }`). */
+  props?: Record<string, unknown>
 }
 
 export type Canvas = {
@@ -68,6 +72,8 @@ export function validateCanvas(input: unknown): string[] {
     else seen.add(f.id)
     if (typeof f.name !== 'string') errors.push(`${p}.name must be a string`)
     if (f.type !== 'page' && f.type !== 'design') errors.push(`${p}.type must be "page" or "design"`)
+    errors.push(...validatePresentation(f.presentation, `${p}.presentation`))
+    if (f.props !== undefined && (typeof f.props !== 'object' || f.props === null || Array.isArray(f.props))) errors.push(`${p}.props must be an object`)
     if (f.type === 'page' && typeof f.url !== 'string') errors.push(`${p}.url is required for page frames`)
     if (f.source !== null) {
       const s = f.source as Record<string, unknown> | undefined
@@ -99,4 +105,28 @@ export function duplicateFrame(canvas: Canvas, id: string): Frame | null {
 export function isValidCanvasPath(path: unknown): path is string {
   if (typeof path !== 'string' || path.length === 0 || path.length > 200) return false
   return path.split('/').every((part) => /^[\w][\w .-]*$/.test(part) && part !== '.' && part !== '..' && !part.endsWith('.') && !part.endsWith(' '))
+}
+
+const ATTRIBUTE_NAME = /^[a-zA-Z][a-zA-Z0-9_:.-]*$/
+
+function validatePresentation(value: unknown, at: string): string[] {
+  if (value === undefined) return []
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return [`${at} must be an object`]
+  const p = value as Record<string, unknown>
+  const errors: string[] = []
+  if (p.background !== undefined && typeof p.background !== 'string') errors.push(`${at}.background must be a string`)
+  if (p.padding !== undefined && (typeof p.padding !== 'number' || !Number.isFinite(p.padding) || p.padding < 0)) errors.push(`${at}.padding must be a number of 0 or more`)
+  if (p.alignment !== undefined && !['start', 'center', 'end'].includes(p.alignment as string)) errors.push(`${at}.alignment must be "start", "center" or "end"`)
+  if (p.overflow !== undefined && !['visible', 'hidden', 'scroll'].includes(p.overflow as string)) errors.push(`${at}.overflow must be "visible", "hidden" or "scroll"`)
+  if (p.htmlAttributes !== undefined) {
+    const a = p.htmlAttributes
+    if (typeof a !== 'object' || a === null || Array.isArray(a)) errors.push(`${at}.htmlAttributes must be an object`)
+    else {
+      for (const [k, v] of Object.entries(a)) {
+        if (!ATTRIBUTE_NAME.test(k) || /^on/i.test(k)) errors.push(`${at}.htmlAttributes."${k}" is not an allowed attribute name`)
+        else if (typeof v !== 'string') errors.push(`${at}.htmlAttributes."${k}" must be a string`)
+      }
+    }
+  }
+  return errors
 }

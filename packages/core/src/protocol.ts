@@ -4,9 +4,9 @@ import type { Presentation } from './manifest.ts'
 export const PROTOCOL = 'moorp/1'
 
 export type ShellToPreview =
-  | { protocol: typeof PROTOCOL; type: 'init'; frameId: string; source: { file: string; export?: string }; scenario?: string; hug: boolean; presentation?: Presentation }
-  /** Frame presentation changed (background, padding, alignment, overflow); no remount. */
-  | { protocol: typeof PROTOCOL; type: 'update'; frameId: string; presentation?: Presentation }
+  | { protocol: typeof PROTOCOL; type: 'init'; frameId: string; source: { file: string; export?: string }; scenario?: string; hug: boolean; presentation?: Presentation; props?: Record<string, unknown> }
+  /** Frame presentation or props changed; the component is not remounted. */
+  | { protocol: typeof PROTOCOL; type: 'update'; frameId: string; presentation?: Presentation; props?: Record<string, unknown> }
   | { protocol: typeof PROTOCOL; type: 'dispose'; frameId: string }
 
 export type PreviewToShell =

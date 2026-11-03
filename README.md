@@ -2,7 +2,7 @@
 
 A local-first, open-source visual workspace for code-driven frontend design: an infinite canvas of live Page and Design frames. Code stays the source of truth; Claude Code, Codex or a developer edits real source files and frames update through HMR.
 
-Status: early. Phase 0 (technical spike) is done and the Phase 1 shell and CLI work for Vue + Vite projects. See [docs/phase-0-spike.md](docs/phase-0-spike.md) and [docs/phase-1-shell.md](docs/phase-1-shell.md).
+Status: early. Phase 0 (technical spike) is done and the Phase 1 shell and CLI work for Vue + Vite projects. See [docs/phase-0-spike.md](docs/phase-0-spike.md), [docs/phase-1-shell.md](docs/phase-1-shell.md) and [docs/real-project-trial.md](docs/real-project-trial.md).
 
 ## Try it
 
