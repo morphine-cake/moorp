@@ -4,15 +4,13 @@
  * Everything else in the shell is styled with the design-system tokens and components.
  */
 
-/* The canvas surface: a dotted grid on the strong background. */
+/* The canvas surface: a plain strong background. */
 .host {
   position: absolute;
   inset: 0;
   overflow: hidden;
   touch-action: none;
   background-color: var(--bg-strong);
-  background-image: radial-gradient(var(--border-strong) 1px, transparent 1px);
-  background-size: 24px 24px;
 }
 .world {
   position: absolute;
@@ -33,24 +31,17 @@
   position: absolute;
 }
 
-/* The toolbar sits above the preview, outside it, and keeps a constant on-screen size at any zoom. */
+/* The header bar sits above the preview, outside it, and keeps a constant on-screen size at any zoom. */
 .frame .bar {
   position: absolute;
   left: 0;
-  bottom: 100%;
+  bottom: calc(100% + 8px / var(--s));
   width: calc(100% * var(--s));
   min-width: 0;
   transform: scale(calc(1 / var(--s)));
   transform-origin: 0 100%;
   cursor: grab;
   user-select: none;
-}
-.frame .actions {
-  display: none;
-}
-.frame:hover .actions,
-.frame.selected .actions {
-  display: flex;
 }
 
 .body {

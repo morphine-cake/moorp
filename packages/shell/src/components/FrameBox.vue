@@ -4,7 +4,7 @@ import { PROTOCOL, isProtocolMessage, type Frame } from '@moorp/core'
 import { api, checkFrame } from '../api'
 import { beginGesture, commit, copyFrame, duplicateInPlace, patchFrame, removeFrame, runAction, state } from '../store'
 import { matchShortcut } from '../shortcuts.ts'
-import { Copy, ExternalLink, Trash2 } from 'lucide-vue-next'
+import { Copy, ExternalLink, Frame as FrameIcon, Monitor, Trash2 } from 'lucide-vue-next'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
 import Tooltip from '@/components/ui/Tooltip.vue'
@@ -203,27 +203,44 @@ async function openSource() {
 
 <template>
   <div class="frame" :data-id="frame.id" :class="{ selected }" :style="{ left: frame.x + 'px', top: frame.y + 'px', width: width + 'px' }">
-    <div class="bar flex items-center justify-between gap-2 px-0.5 py-1" @pointerdown="startMove" @dblclick="startRename">
+    <!-- Framer-style header: always black, as wide as the frame. Type chip, name and width on the left, actions on the right.
+         Parts drop out as the bar gets narrow (container queries), so small frames at low zoom stay clean. -->
+    <div
+      class="bar @container/bar flex h-9 items-center gap-2 rounded-xl bg-neutral-950 p-1 shadow-[0_0_0_1px_var(--neutral-800)]"
+      @pointerdown="startMove"
+      @dblclick="startRename"
+    >
+      <span
+        class="grid size-7 shrink-0 place-items-center rounded-lg"
+        :class="selected ? 'bg-brand fg-brand-on' : 'bg-white/10 text-neutral-300'"
+        :title="frame.type === 'page' ? 'Page frame' : 'Design frame'"
+      >
+        <Monitor v-if="frame.type === 'page'" class="size-4" />
+        <FrameIcon v-else class="size-4" />
+      </span>
       <Input
         v-if="renaming"
         ref="nameInput"
         v-model="nameDraft"
-        class="h-6 w-40 px-1.5 py-0.5 text-xs"
+        class="h-7 w-40 min-w-0 border-neutral-700 bg-neutral-900 px-1.5 py-0.5 text-xs text-neutral-100 focus-visible:bg-neutral-900"
         @pointerdown.stop
         @keydown.enter="finishRename(true)"
         @keydown.esc="finishRename(false)"
         @blur="finishRename(true)"
       />
-      <span v-else class="type-body-xs truncate" :class="selected ? 'fg-brand font-semibold' : 'fg-ghost'" :title="frame.id">{{ frame.name }}</span>
-      <span class="actions shrink-0 items-center gap-0.5" @pointerdown.stop>
+      <template v-else>
+        <span class="type-body-m-semibold min-w-0 truncate" :class="selected ? 'text-neutral-50' : 'text-neutral-400'" :title="frame.id">{{ frame.name }}</span>
+        <span class="type-code-s hidden shrink-0 text-neutral-500 @[220px]/bar:inline">{{ Math.round(width) }}</span>
+      </template>
+      <span class="ml-auto flex shrink-0 items-center gap-0.5 @max-[130px]/bar:hidden" @pointerdown.stop>
         <Tooltip v-if="frame.source" text="Open source in editor">
-          <Button variant="ghost" size="icon-xs" aria-label="Open source in editor" @click="openSource"><ExternalLink /></Button>
+          <Button variant="ghost" size="icon-sm" class="text-neutral-300 hover:bg-white/10 hover:text-white" aria-label="Open source in editor" @click="openSource"><ExternalLink /></Button>
         </Tooltip>
         <Tooltip text="Duplicate" shortcut="⌘D">
-          <Button variant="ghost" size="icon-xs" aria-label="Duplicate frame (source files are not copied)" @click="copyFrame(frame.id)"><Copy /></Button>
+          <Button variant="ghost" size="icon-sm" class="text-neutral-300 hover:bg-white/10 hover:text-white" aria-label="Duplicate frame (source files are not copied)" @click="copyFrame(frame.id)"><Copy /></Button>
         </Tooltip>
         <Tooltip text="Remove from canvas" shortcut="⌫">
-          <Button variant="ghost" size="icon-xs" aria-label="Remove from canvas (source files are not deleted)" @click="removeFrame(frame.id)"><Trash2 /></Button>
+          <Button variant="ghost" size="icon-sm" class="text-neutral-300 hover:bg-white/10 hover:text-white" aria-label="Remove from canvas (source files are not deleted)" @click="removeFrame(frame.id)"><Trash2 /></Button>
         </Tooltip>
       </span>
     </div>
