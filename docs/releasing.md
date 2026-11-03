@@ -45,10 +45,13 @@ Bump `version` in all four `package.json` files to the same value (for example `
 
 - `Repository not found` from `git ls-remote ssh://git@github.com/dist-release/...`: the path did not start with `./`, so npm read it as a GitHub `owner/repo`.
 - `E404 ... /-/v1/done?authId=...` right after "Press ENTER to open in the browser": the browser approval was not completed in time (or another command was started meanwhile), and nothing was published. Run the same command again, press Enter, approve straight away, and wait for the `+ name@version` line before the next one. `npm login` first if it keeps failing.
-- A new version can return 404 from `npm view` for a few minutes after `+ name@version`; wait and retry.
+- A new version can return 404 from `npm view` for a few minutes after `+ name@version`; wait and retry. For `alpha.1` the packages became visible about 5 to 15 minutes after publishing, and not at the same time: `@moorp/shell` (the largest) came last. `moorp` pins the shell, so install from the registry only once all four show the new version (`npm view <name> dist-tags`, or the raw `https://registry.npmjs.org/<name>` data to bypass npm's cache).
+- Every package also lists a `0.0.0-stage` version that was not published by us; it appeared at the first publish of each package and can be ignored.
 - npm sets `latest` on a package's first publish even with `--tag alpha`, so the three `@moorp/*` packages show `latest` as the alpha. `moorp@latest` stays `0.0.0` until a stable release, which is why installs use `moorp@alpha`.
 
 ## History
 
 - `0.1.0-alpha.0` (2026-11-03): first alpha. Published in the order vue, core, shell, moorp (the first core attempt hit the E404 above). Installed from the registry into a copy of a real Vue 3 + Vite 5 + Tailwind 3 project; `moorp init` and `moorp dev` worked, with light and dark design frames and a page frame of the app.
 - `0.1.0-alpha.1`: fixes found by trying the published alpha in a fresh project. `moorp` now installs next to Vite 7 and 8 (the peer range was `^5 || ^6`, so a new project failed with `ERESOLVE`), `setup` in `.visual-canvas/preview.ts` receives `{ frameId, scenario, props }`, and design frames have a Scenario field. The release check now installs against the newest Vite too, so this cannot regress unnoticed.
+
+  Published 2026-11-03 and verified from the registry: in a brand-new project on Vite 8.3.5 (`@vitejs/plugin-vue` 6.0.10), `npm i -D moorp@alpha @moorp/vue@alpha` installed with no flags, and `moorp init` and `moorp dev` worked with Pinia, vue-i18n and vue-router, a per-frame locale from the Scenario field, and independent store state per frame.

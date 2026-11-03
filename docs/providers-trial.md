@@ -11,7 +11,7 @@ A small Vue 3 app (a cart summary component that uses a Pinia store, vue-i18n an
 
 ## Gaps found, and what was done
 
-1. **`moorp` would not install next to a new Vite.** A fresh `npm install vite` gives Vite 8, and the peer range was `^5 || ^6`, so `npm i -D moorp@alpha` failed with `ERESOLVE`. The range is now `^5 || ^6 || ^7 || ^8`, after running the same project on Vite 8 and 7. *This is the first thing a new user of the published alpha hits; it needs a new alpha to ship (see below).*
+1. **`moorp` would not install next to a new Vite.** A fresh `npm install vite` gives Vite 8, and the peer range was `^5 || ^6`, so `npm i -D moorp@alpha` failed with `ERESOLVE`. The range is now `^5 || ^6 || ^7 || ^8`, after running the same project on Vite 8 and 7. *This is the first thing a new user of the published alpha hits. It shipped in `0.1.0-alpha.1`, which installs with no flags next to Vite 8.3.5.*
 2. **No way to vary a frame's providers.** `setup(app)` got no frame information, and a frame's `scenario` was ignored, so a Turkish and an English frame of one component looked the same. `setup` now receives `(app, { frameId, scenario, props })`, and the properties panel has a **Scenario** field (changing it reloads the frame). A `preview.ts` can then do `createI18n({ locale: context.scenario ?? 'en' })` or seed a store. `scenario` is validated as a string.
 
 ## Limits
