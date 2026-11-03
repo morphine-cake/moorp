@@ -2,9 +2,9 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { PROTOCOL, isProtocolMessage, type Frame } from '@moorp/core'
 import { api, checkFrame } from '../api'
-import { beginGesture, commit, copyFrame, duplicateInPlace, patchFrame, removeFrame, runAction, state } from '../store'
+import { beginGesture, commit, copyFrame, duplicateInPlace, openFrameSource, patchFrame, removeFrame, runAction, state } from '../store'
 import { matchShortcut } from '../shortcuts.ts'
-import { Copy, ExternalLink, Frame as FrameIcon, Monitor, Trash2 } from 'lucide-vue-next'
+import { Copy, ExternalLink, Trash2 } from 'lucide-vue-next'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
 import Tooltip from '@/components/ui/Tooltip.vue'
@@ -194,33 +194,19 @@ function finishRename(apply: boolean) {
   if (apply && name && name !== props.frame.name) patchFrame(props.frame.id, { name })
 }
 
-async function openSource() {
-  if (!props.frame.source) return
-  try {
-    await api.openSource(props.frame.source.file)
-  } catch (e) {
-    state.error = `Open source failed: ${e instanceof Error ? e.message : e}`
-  }
-}
 </script>
 
 <template>
   <div class="frame" :data-id="frame.id" :class="{ selected }" :style="{ left: frame.x + 'px', top: frame.y + 'px', width: width + 'px' }">
-    <!-- Framer-style header, as wide as the frame: soft grey in light mode, black in dark mode. Type chip, name and width on the left, actions on the right.
-         Parts drop out as the bar gets narrow (container queries), so small frames at low zoom stay clean. -->
+    <!-- Framer-style header, as wide as the frame: soft grey in light mode, black in dark mode. Just the name (and the width
+         when there is room) on the left, the actions on the right. As the frame gets smaller on screen the width and then the
+         actions drop out, leaving only the name; every action is also in the frame's details (properties panel). -->
     <div
-      class="bar @container/bar flex h-9 items-center gap-2 rounded-xl bg-black/[0.07] p-1 dark:bg-neutral-950 dark:shadow-[0_0_0_1px_var(--neutral-800)]"
+      class="bar @container/bar flex h-9 items-center gap-2 rounded-xl bg-black/[0.07] py-1 pr-1 pl-3 dark:bg-neutral-950 dark:shadow-[0_0_0_1px_var(--neutral-800)]"
+      :class="selected && 'shadow-[0_0_0_1.5px_var(--brand-bg)] dark:shadow-[0_0_0_1.5px_var(--brand-bg)]'"
       @pointerdown="startMove"
       @dblclick="startRename"
     >
-      <span
-        class="grid size-7 shrink-0 place-items-center rounded-lg"
-        :class="selected ? 'bg-brand fg-brand-on' : 'bg-black/[0.06] text-neutral-500 dark:bg-white/10 dark:text-neutral-300'"
-        :title="frame.type === 'page' ? 'Page frame' : 'Design frame'"
-      >
-        <Monitor v-if="frame.type === 'page'" class="size-4" />
-        <FrameIcon v-else class="size-4" />
-      </span>
       <Input
         v-if="renaming"
         ref="nameInput"
@@ -233,11 +219,11 @@ async function openSource() {
       />
       <template v-else>
         <span class="type-body-m-semibold min-w-0 truncate" :class="selected ? 'text-neutral-900 dark:text-neutral-50' : 'text-neutral-500 dark:text-neutral-400'" :title="frame.id">{{ frame.name }}</span>
-        <span class="type-code-s hidden shrink-0 text-neutral-400 @[220px]/bar:inline dark:text-neutral-500">{{ Math.round(width) }}</span>
+        <span class="type-code-s hidden shrink-0 text-neutral-400 @[280px]/bar:inline dark:text-neutral-500">{{ Math.round(width) }}</span>
       </template>
-      <span class="ml-auto flex shrink-0 items-center gap-0.5 @max-[130px]/bar:hidden" @pointerdown.stop>
+      <span class="ml-auto hidden shrink-0 items-center gap-0.5 @[200px]/bar:flex" @pointerdown.stop>
         <Tooltip v-if="frame.source" text="Open source in editor">
-          <Button variant="ghost" size="icon-sm" :class="barButton" aria-label="Open source in editor" @click="openSource"><ExternalLink /></Button>
+          <Button variant="ghost" size="icon-sm" :class="barButton" aria-label="Open source in editor" @click="openFrameSource(frame.id)"><ExternalLink /></Button>
         </Tooltip>
         <Tooltip text="Duplicate" shortcut="⌘D">
           <Button variant="ghost" size="icon-sm" :class="barButton" aria-label="Duplicate frame (source files are not copied)" @click="copyFrame(frame.id)"><Copy /></Button>

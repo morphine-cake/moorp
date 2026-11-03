@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import type { Presentation } from '@moorp/core'
-import { Copy, Focus, Trash2 } from 'lucide-vue-next'
-import { copyFrame, deleteCanvas, fitFrames, patchFrame, removeFrame, resetView, selectedFrame as frame, state } from '../store'
+import { Copy, ExternalLink, Focus, Trash2 } from 'lucide-vue-next'
+import { copyFrame, deleteCanvas, fitFrames, openFrameSource, patchFrame, removeFrame, resetView, selectedFrame as frame, state } from '../store'
 import PanelSection from './PanelSection.vue'
 import Badge from '@/components/ui/Badge.vue'
 import Button from '@/components/ui/Button.vue'
@@ -226,6 +226,7 @@ const shortcuts: [string, string[]][] = [
 
       <PanelSection>
         <div class="flex flex-wrap gap-2">
+          <Button v-if="frame.source" variant="outline" size="sm" title="Open the component file in your editor" @click="openFrameSource(id())"><ExternalLink /> Open source</Button>
           <Button variant="outline" size="sm" @click="copyFrame(id())"><Copy /> Duplicate</Button>
           <Button variant="outline" size="sm" title="Zoom to this frame" @click="fitFrames(id())"><Focus /> Zoom to</Button>
           <Button variant="destructive" size="sm" @click="removeFrame(id())"><Trash2 /> Delete</Button>

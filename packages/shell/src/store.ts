@@ -287,6 +287,17 @@ export function patchFrame(id: string, patch: Partial<Omit<Frame, 'id' | 'presen
   }, { immediate: persist, history: persist })
 }
 
+/** Open a frame's bound source file in the editor (the panel and the frame bar both use this). */
+export async function openFrameSource(id: string) {
+  const file = state.canvas?.frames.find((f) => f.id === id)?.source?.file
+  if (!file) return
+  try {
+    await api.openSource(file)
+  } catch (e) {
+    state.error = `Open source failed: ${e instanceof Error ? e.message : e}`
+  }
+}
+
 /** Alt+drag (Figma): leave a copy where the frame was, then keep dragging the original. Part of the gesture's undo step. */
 export function duplicateInPlace(id: string) {
   mutate((c) => {
