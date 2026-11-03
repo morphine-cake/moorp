@@ -14,8 +14,14 @@ if (import.meta.hot) import.meta.hot.data.view = view
 const applyView = () => (world.style.transform = `translate(${view.tx}px,${view.ty}px) scale(${view.s})`)
 applyView()
 
-function zoomAt(cx: number, cy: number, deltaY: number) {
-  const next = Math.min(4, Math.max(0.1, view.s * Math.exp(-deltaY * 0.01)))
+/** Pixel-equivalent wheel delta, clamped so one mouse-wheel notch is a modest step (~1.35x) and pinch stays smooth. */
+function wheelDelta(deltaY: number, deltaMode = 0) {
+  const px = deltaY * (deltaMode === 1 ? 16 : deltaMode === 2 ? 100 : 1)
+  return Math.max(-30, Math.min(30, px))
+}
+
+function zoomAt(cx: number, cy: number, deltaY: number, deltaMode = 0) {
+  const next = Math.min(4, Math.max(0.1, view.s * Math.exp(-wheelDelta(deltaY, deltaMode) * 0.01)))
   view.tx = cx - ((cx - view.tx) * next) / view.s
   view.ty = cy - ((cy - view.ty) * next) / view.s
   view.s = next
@@ -25,7 +31,7 @@ function zoomAt(cx: number, cy: number, deltaY: number) {
 // Wheel on the canvas itself (iframes keep their own scroll): ctrl/pinch zooms, otherwise pans.
 host.addEventListener('wheel', (e) => {
   e.preventDefault()
-  if (e.ctrlKey || e.metaKey) zoomAt(e.clientX, e.clientY, e.deltaY)
+  if (e.ctrlKey || e.metaKey) zoomAt(e.clientX, e.clientY, e.deltaY, e.deltaMode)
   else (view.tx -= e.deltaX, (view.ty -= e.deltaY), applyView())
 }, { passive: false })
 
@@ -96,6 +102,19 @@ function upsertFrame(f: Frame) {
   if (typeof f.height === 'number') entry.iframe.style.height = f.height + 'px'
 }
 
+type FrameCheck = { embeddable: boolean; reason: string }
+const checks: Map<string, Promise<FrameCheck>> = import.meta.hot?.data.checks ?? new Map()
+if (import.meta.hot) import.meta.hot.data.checks = checks
+/** One header check per URL, shared by every frame that embeds it. */
+function checkFrame(url: string): Promise<FrameCheck> {
+  let p = checks.get(url)
+  if (!p) {
+    p = fetch('/__moorp/frame-check?url=' + encodeURIComponent(url)).then((r) => r.json() as Promise<FrameCheck>)
+    checks.set(url, p)
+  }
+  return p
+}
+
 function createFrame(f: Frame): Entry {
   const box = document.createElement('div')
   box.style.position = 'absolute'
@@ -119,15 +138,18 @@ function createFrame(f: Frame): Entry {
   const iframe = document.createElement('iframe')
   iframe.dataset.frameId = f.id
   iframe.style.border = '0'
-  const hug = f.type === 'design' && (f.width === 'hug' || f.height === 'hug')
+  // A design frame with no source never reports a size, so it gets a visible default until one is bound.
+  const blank = f.type === 'design' && !f.source
+  const hug = f.type === 'design' && !blank && (f.width === 'hug' || f.height === 'hug')
+  if (blank && f.width === 'hug') iframe.style.width = '240px'
+  if (blank && f.height === 'hug') iframe.style.height = '120px'
   // Hug frames start large so content is measured unconstrained, then shrink on `size`.
   if (hug && f.width === 'hug') iframe.style.width = '2000px'
   if (hug && f.height === 'hug') iframe.style.height = '2000px'
   if (f.type === 'page') {
     // Page Frame: a real browsing context at the given URL; flag pages that refuse embedding.
     iframe.src = f.url!
-    void fetch('/__moorp/frame-check?url=' + encodeURIComponent(f.url!))
-      .then((r) => r.json() as Promise<{ embeddable: boolean; reason: string }>)
+    void checkFrame(f.url!)
       .then((r) => {
         if (r.embeddable) return
         const note = document.createElement('div')

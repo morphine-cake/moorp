@@ -151,4 +151,13 @@ Claude Code (this agent) added a blank frame (`frame-11`, `source: null`) to the
 | Blank hug frame before binding | Finding: it stays at its 2000 × 2000 px start size with nothing drawn, because no `size` message arrives. Blank frames need a default size (for example the 240 × 120 fixed size used for blank frames elsewhere in the spec) until a source is bound. |
 | No restart needed | Not shown in this run. Adding a new `.vue` file changes the `import.meta.glob` result and the page appears to have reloaded, so the "other frames keep their state" check from the first run (binding an existing file) was not repeated. A newly created component file likely needs a full reload in this setup; check whether the preview glob can pick up new files through HMR. |
 
+### Follow-up fixes (2026-11-03)
+
+| Finding | Fix | Verified |
+| --- | --- | --- |
+| Blank hug frame stayed at 2000 × 2000 px | A design frame with no source gets 240 × 120 px until a source is bound. | Yes: a blank hug frame measured 240 × 120. |
+| New component file forced a reload | `preview.ts` imports the component by dev-server URL instead of `import.meta.glob`, so adding a file does not invalidate the module. | Yes: adding `Badge.vue` and binding it rendered it (47 × 20 px) with no reload of the shell or of other previews, and a later edit hot-updated it without reloading either frame. |
+| `frame-check` fetched every page twice and was an open proxy | The shell caches one check per URL; the server only fetches `localhost`, `127.0.0.1`, `[::1]` and origins in `MOORP_ALLOWED_ORIGINS`, and answers `checked: false` for others. | Yes: 20 frames of one page made 1 check request (was 20); `https://example.com` was not fetched; `file:` was refused. |
+| Wheel zoom too coarse | Wheel delta is normalised for line/page mode and clamped to ±30. | Yes: one `deltaY` 100 notch zoomed 1.35× (was 2.7×). Not tried on a real trackpad. |
+
 Not run: none. Exit gate status: 2, 3, 4 and 5 pass, with the caveat above on 5. All nine experiments now have a recorded result.

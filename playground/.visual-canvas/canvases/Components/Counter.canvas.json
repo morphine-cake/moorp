@@ -148,6 +148,28 @@
       "y": 200,
       "width": "hug",
       "height": "hug"
+    },
+    {
+      "id": "frame-12",
+      "name": "Blank hug",
+      "type": "design",
+      "source": null,
+      "x": 600,
+      "y": 200,
+      "width": "hug",
+      "height": "hug"
+    },
+    {
+      "id": "frame-13",
+      "name": "Badge",
+      "type": "design",
+      "source": {
+        "file": "src/components/Badge.vue"
+      },
+      "x": 800,
+      "y": 200,
+      "width": "hug",
+      "height": "hug"
     }
   ]
 }

@@ -18,6 +18,13 @@ function moorpDev(): Plugin {
         try {
           const target = new URL(raw, 'http://localhost:5173')
           if (!['http:', 'https:'].includes(target.protocol)) throw new Error('only http(s) URLs')
+          // Only fetch from this machine's dev servers or origins listed in MOORP_ALLOWED_ORIGINS.
+          const extra = (process.env.MOORP_ALLOWED_ORIGINS ?? '').split(',').map((o) => o.trim()).filter(Boolean)
+          const local = ['localhost', '127.0.0.1', '[::1]'].includes(target.hostname)
+          if (!local && !extra.includes(target.origin)) {
+            res.end(JSON.stringify({ embeddable: true, reason: '', checked: false }))
+            return
+          }
           const r = await fetch(target, { method: 'GET', redirect: 'follow' })
           const xfo = r.headers.get('x-frame-options') ?? ''
           const fa = /frame-ancestors\s+([^;]+)/i.exec(r.headers.get('content-security-policy') ?? '')?.[1]?.trim()
