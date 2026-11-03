@@ -1,6 +1,6 @@
 {
   "name": "moorp",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "description": "Local-first visual workspace for code-driven frontend design: an infinite canvas of live Page and Design frames.",
   "license": "MIT",
   "keywords": [

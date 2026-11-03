@@ -1,6 +1,6 @@
 {
   "name": "@moorp/shell",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "description": "The Moorp canvas app (sidebar, infinite canvas, properties panel), built to static files and served by the moorp CLI.",
   "license": "MIT",
   "type": "module",

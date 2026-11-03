@@ -80,17 +80,26 @@ for (const p of packages) {
   for (const [name, range] of Object.entries(pkg.dependencies ?? {})) if (name.startsWith('@moorp/')) check(range === expected, `${name} pinned to ${range}`)
 }
 
-console.log('4. Clean install and run')
-const smoke = mkdtempSync(path.join(tmpdir(), 'moorp-smoke-'))
-writeFileSync(
-  path.join(smoke, 'package.json'),
-  JSON.stringify({ name: 'smoke', private: true, type: 'module', devDependencies: { vue: '^3.5.0', vite: '^6.0.0', '@vitejs/plugin-vue': '^5.2.0' } }),
-)
-writeFileSync(path.join(smoke, 'vite.config.js'), "import vue from '@vitejs/plugin-vue'\nexport default { plugins: [vue()] }\n")
-const install = run('npm', ['install', '--no-audit', '--no-fund', ...Object.values(tarballs).filter(Boolean)], { cwd: smoke, allowFail: true })
-check(install.status === 0, 'npm install of the four tarballs (no registry copies of @moorp needed)')
-if (install.status !== 0) console.log(install.stderr)
-else {
+// The same install-and-run check against an older and the newest Vite, with no peer-dependency
+// overrides: a fresh `npm install vite` must be able to sit next to moorp.
+const variants = [
+  { label: 'Vite 6', deps: { vue: '^3.5.0', vite: '^6.0.0', '@vitejs/plugin-vue': '^5.2.0' } },
+  { label: 'latest Vite', deps: { vue: 'latest', vite: 'latest', '@vitejs/plugin-vue': 'latest' } },
+]
+
+async function smokeTest({ label, deps }) {
+  console.log(`4. Clean install and run (${label})`)
+  const smoke = mkdtempSync(path.join(tmpdir(), 'moorp-smoke-'))
+  writeFileSync(path.join(smoke, 'package.json'), JSON.stringify({ name: 'smoke', private: true, type: 'module', devDependencies: deps }))
+  writeFileSync(path.join(smoke, 'vite.config.js'), "import vue from '@vitejs/plugin-vue'\nexport default { plugins: [vue()] }\n")
+  const install = run('npm', ['install', '--no-audit', '--no-fund', ...Object.values(tarballs).filter(Boolean)], { cwd: smoke, allowFail: true })
+  check(install.status === 0, 'npm install of the four tarballs next to Vite, no peer overrides')
+  if (install.status !== 0) {
+    console.log(install.stderr)
+    return rmSync(smoke, { recursive: true, force: true })
+  }
+  const vite = JSON.parse(readFileSync(path.join(smoke, 'node_modules/vite/package.json'), 'utf8')).version
+  ok(`using vite ${vite}`)
   const bin = (...args) => run('npx', ['--no-install', 'moorp', ...args], { cwd: smoke, allowFail: true })
   check(bin('--version').stdout.trim() === expected, `moorp --version is ${expected}`)
   const init = bin('init')
@@ -122,8 +131,10 @@ else {
   } catch {
     /* already gone */
   }
+  rmSync(smoke, { recursive: true, force: true })
 }
-rmSync(smoke, { recursive: true, force: true })
+
+for (const v of variants) await smokeTest(v)
 
 console.log()
 if (failures.length) {
