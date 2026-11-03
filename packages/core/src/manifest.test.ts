@@ -67,3 +67,9 @@ test('presentation fields are validated', () => {
   assert.equal(check({ htmlAttributes: { class: 3 } }).length, 1)
   assert.equal(check([]).length, 1)
 })
+
+test('scenario must be a string when present', () => {
+  const frame = { id: 'frame-1', name: 'A', type: 'design', source: null, x: 0, y: 0, width: 'hug', height: 'hug' }
+  assert.deepEqual(validateCanvas({ version: 1, frames: [{ ...frame, scenario: 'tr' }] }), [])
+  assert.equal(validateCanvas({ version: 1, frames: [{ ...frame, scenario: 3 }] }).length, 1)
+})

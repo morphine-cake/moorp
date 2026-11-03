@@ -16,7 +16,9 @@ const PREVIEW_TS = `import type { App } from 'vue'
 // import '../src/styles.css'
 // import { createPinia } from 'pinia'
 
-export function setup(app: App) {
+// context.scenario is the frame's "scenario" (a name you choose in the properties panel), for
+// example a locale or a store preset: app.use(createI18n({ locale: context.scenario ?? 'en' })).
+export function setup(app: App, context: { frameId: string; scenario?: string; props: Record<string, unknown> }) {
   // app.use(createPinia())
 }
 `

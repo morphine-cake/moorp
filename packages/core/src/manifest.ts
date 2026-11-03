@@ -31,6 +31,7 @@ export type Frame = {
   width: number | 'hug'
   height: number | 'hug'
   presentation?: Presentation
+  /** A name your `preview.ts` can read (for example a locale or a store preset) to set the frame up differently. */
   scenario?: string
   /** JSON props passed to the root component of a design frame (for example `{ "isDark": true }`). */
   props?: Record<string, unknown>
@@ -73,6 +74,7 @@ export function validateCanvas(input: unknown): string[] {
     if (typeof f.name !== 'string') errors.push(`${p}.name must be a string`)
     if (f.type !== 'page' && f.type !== 'design') errors.push(`${p}.type must be "page" or "design"`)
     errors.push(...validatePresentation(f.presentation, `${p}.presentation`))
+    if (f.scenario !== undefined && typeof f.scenario !== 'string') errors.push(`${p}.scenario must be a string`)
     if (f.props !== undefined && (typeof f.props !== 'object' || f.props === null || Array.isArray(f.props))) errors.push(`${p}.props must be an object`)
     if (f.type === 'page' && typeof f.url !== 'string') errors.push(`${p}.url is required for page frames`)
     if (f.source !== null) {

@@ -28,6 +28,7 @@ Canvases are JSON files in `.visual-canvas/canvases/**.canvas.json`; folders are
 - Canvas: pan, zoom (clamped 10%–400%), per-canvas view remembered. Empty canvas shows how to start.
 - Frames: add Design or Page frames, select by title bar, move by dragging the title bar, resize from edges and corner (a hug size becomes fixed), rename by double click, duplicate (reference only), delete (canvas only). The toolbar sits outside the preview and keeps a constant on-screen size at any zoom.
 - Properties panel: canvas properties when nothing is selected; for a frame its name, source file or URL, size (Hug/Fixed for design frames, presets for page frames), props (JSON passed to the component), and presentation (background, padding, alignment, overflow, and a class on the preview's `<html>` for themes). Presentation is applied around the component, never inside its CSS; props and presentation update in place without remounting.
+- Scenario: a free-text name per design frame, passed to `.visual-canvas/preview.ts` as `setup(app, { frameId, scenario, props })`, to pick a locale or seed a store per frame (see [providers-trial.md](providers-trial.md)).
 - Navigation: Fit (all frames), Zoom to (one frame), zoom from 2% to 400%, back/forward between canvases.
 - Previews: always interactive; a design frame without a source shows a placeholder; preview errors and "cannot embed" reasons show on the frame.
 - Persistence: every change is saved after a short debounce; invalid or half-written files keep the last valid layout on screen with a banner naming the problem.

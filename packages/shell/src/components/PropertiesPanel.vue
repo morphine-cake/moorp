@@ -129,6 +129,12 @@ const padding = computed(() => frame.value?.presentation?.padding ?? 0)
       </section>
 
       <section v-if="isDesign">
+        <h4>Scenario</h4>
+        <input :value="frame.scenario ?? ''" placeholder="e.g. tr" @change="patchFrame(id(), { scenario: ($event.target as HTMLInputElement).value.trim() || undefined })" />
+        <p class="hint">A name your <code>.visual-canvas/preview.ts</code> can read from <code>setup(app, context)</code>, for example to pick a locale or seed a store. Changing it reloads the frame.</p>
+      </section>
+
+      <section v-if="isDesign">
         <h4>Props</h4>
         <textarea v-model="propsText" rows="4" spellcheck="false" placeholder='{ "isDark": true }' @change="setProps" />
         <p v-if="propsError" class="hint error-text">{{ propsError }}</p>

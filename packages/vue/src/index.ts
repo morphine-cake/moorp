@@ -3,11 +3,20 @@ import { PROTOCOL, isProtocolMessage, type Presentation, type PreviewToShell } f
 
 export type ComponentLoader = (file: string, exportName?: string) => Promise<Component>
 
+/** What a frame tells `setup`, so one preview can be configured per frame (locale, store seed, theme provider). */
+export type PreviewContext = {
+  frameId: string
+  /** The frame's `scenario` name, if any. */
+  scenario?: string
+  /** The frame's `props`. */
+  props: Record<string, unknown>
+}
+
 export type PreviewOptions = {
   /** Resolves a manifest source ref to a component. Supplied by the dev-server integration (a dev-server URL import). */
   load: ComponentLoader
-  /** Called with the app before mount: install router, pinia, i18n etc. (the `preview.ts` context). */
-  setup?: (app: App) => void
+  /** Called with the app before mount: install router, pinia, i18n etc. (the `preview.ts` context), and the frame's context. */
+  setup?: (app: App, context: PreviewContext) => void
   root: HTMLElement
 }
 
@@ -25,6 +34,7 @@ export function startPreview({ load, setup, root }: PreviewOptions): () => void 
   })
 
   let hug = false
+  let scenario: string | undefined
   // Reactive so a props edit re-renders the mounted component instead of remounting it.
   const props = reactive<Record<string, unknown>>({})
   function setProps(next: Record<string, unknown> = {}) {
@@ -71,7 +81,7 @@ export function startPreview({ load, setup, root }: PreviewOptions): () => void 
       const component = await load(file, exportName)
       app = createApp({ render: () => h(component, props) })
       app.config.errorHandler = (err) => post({ type: 'error', message: String(err) } as never)
-      setup?.(app)
+      setup?.(app, { frameId, scenario, props: { ...props } })
       app.mount(root)
       observer.observe(root, { box: 'border-box' })
       post({ type: 'ready' } as never)
@@ -86,6 +96,7 @@ export function startPreview({ load, setup, root }: PreviewOptions): () => void 
     if (msg.type === 'init') {
       frameId = msg.frameId
       hug = msg.hug
+      scenario = msg.scenario
       applyPresentation(msg.presentation)
       setProps(msg.props)
       void mount(msg.source.file, msg.source.export)
