@@ -42,6 +42,8 @@ export function startPreview({ load, setup, root }: PreviewOptions): () => void 
     const msg = event.data
     if (msg.type === 'init') {
       frameId = msg.frameId
+      // Hug: root shrinks to its content so the reported size is the content's, not the iframe's.
+      root.style.display = msg.hug ? 'inline-block' : 'block'
       void mount(msg.source.file, msg.source.export)
     } else if (msg.type === 'dispose') {
       app?.unmount()

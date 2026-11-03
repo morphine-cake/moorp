@@ -48,12 +48,12 @@ Run on 2026-11-03 against `playground/` (Vue 3.5 + Vite 6), shell at `/`, per-fr
 | 2 | Design Frame, one component | Pass. `Counter.vue` mounts through `@moorp/vue` in an iframe with global CSS (`--accent`) and a router from `.visual-canvas/preview.ts`; frames report `ready` and `size`. |
 | 3 | HMR with many frames | Pass. Editing `Counter.vue` updated all 5 iframes in about 2 s, with no iframe reload (same document, `timeOrigin` unchanged) and per-frame state kept. |
 | 4 | Independent state | Pass. Clicking frame 1 left frame 2 and the others unchanged. |
-| 5 | Manifest round trip | Partial. A blank frame (`source: null`) renders as an empty frame and the manifest validates. Not yet tested: an AI agent binding a source, and a malformed edit. |
+| 5 | Manifest round trip | Pass (agent step simulated by a direct file edit). Editing the manifest to bind blank `frame-6` to `Counter.vue` rendered it live with no restart, and the other frames kept their state and were not reloaded. A malformed edit (`type: "blob"`) showed a banner naming the field while the last valid layout stayed on screen; fixing it cleared the banner. Not yet tested with Claude Code actually generating the component and writing the binding. |
 
 Findings:
 
-- **Hug sizing is wrong.** `size` reports the iframe's own width (120 px) because the preview root is a block element that fills the iframe. Hug needs the root measured as `fit-content` (or the first child), while Fixed frames should keep filling. Fix before experiment 6.
+- **Hug sizing fixed.** `init` now carries `hug`; the preview root is `inline-block` for hug frames, and the shell starts hug iframes at 2000 px and shrinks them to the reported size (Counter: 93 × 35 px). Known limit: content sized with `%`/`vw` depends on the iframe size, so it can feed back; not yet tested at other canvas zoom levels (experiment 6).
 - **Frame presentation is not applied yet.** `padding`, `alignment` and `overflow` are in the manifest but only `background` is used by the spike shell.
-- **Invalid manifests are only shown as text** in the shell; the "previous layout survives" requirement of experiment 5 is not implemented.
+- **Manifest reconcile.** The shell keeps frames across manifest edits and only recreates a frame when its type, source, scenario or hug mode changes, so unrelated frames keep their state.
 
-Not run: 1, 6, 7, 8, 9. Exit gate status: 2, 3 and 4 pass; 5 is partial.
+Not run: 1, 6, 7, 8, 9. Exit gate status: 2, 3, 4 and 5 pass, with the caveat above on 5.

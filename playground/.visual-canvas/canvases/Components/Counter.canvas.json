@@ -6,6 +6,6 @@
     { "id": "frame-3", "name": "Counter C", "type": "design", "source": { "file": "src/components/Counter.vue" }, "x": 520, "y": 0, "width": "hug", "height": "hug", "presentation": { "padding": 16, "background": "#ffffff" } },
     { "id": "frame-4", "name": "Counter D", "type": "design", "source": { "file": "src/components/Counter.vue" }, "x": 780, "y": 0, "width": "hug", "height": "hug", "presentation": { "padding": 16, "background": "#ffffff" } },
     { "id": "frame-5", "name": "Counter E", "type": "design", "source": { "file": "src/components/Counter.vue" }, "x": 1040, "y": 0, "width": "hug", "height": "hug", "presentation": { "padding": 16, "background": "#ffffff" } },
-    { "id": "frame-6", "name": "Blank", "type": "design", "source": null, "x": 0, "y": 200, "width": 240, "height": 120 }
+    { "id": "frame-6", "name": "Blank", "type": "design", "source": { "file": "src/components/Counter.vue" }, "x": 0, "y": 200, "width": 240, "height": 120 }
   ]
 }

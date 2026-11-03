@@ -3,7 +3,7 @@
 export const PROTOCOL = 'moorp/1'
 
 export type ShellToPreview =
-  | { protocol: typeof PROTOCOL; type: 'init'; frameId: string; source: { file: string; export?: string }; scenario?: string }
+  | { protocol: typeof PROTOCOL; type: 'init'; frameId: string; source: { file: string; export?: string }; scenario?: string; hug: boolean }
   | { protocol: typeof PROTOCOL; type: 'update'; frameId: string }
   | { protocol: typeof PROTOCOL; type: 'dispose'; frameId: string }
 
