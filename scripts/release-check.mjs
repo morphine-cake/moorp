@@ -131,5 +131,6 @@ if (failures.length) {
   process.exit(1)
 }
 console.log(`All checks passed for ${expected}. Tarballs are in dist-release/.\n`)
-console.log('Publish in this order (each asks for your 2FA):')
-for (const p of packages) console.log(`  npm publish ${path.relative(root, tarballs[p.name])}`)
+console.log(`Publish from ${root}, in this order (each asks for your 2FA):`)
+// `./` so npm reads a file path, not a GitHub owner/repo; --tag because publishConfig.tag is ignored for tarballs.
+for (const p of packages) console.log(`  npm publish ./${path.relative(root, tarballs[p.name])} --tag alpha`)

@@ -14,13 +14,13 @@ CI (GitHub Actions) runs build, typecheck and tests on every push; it does not r
 
 ## Publishing
 
-You need to be logged in (`npm login`) with 2FA on the account, and to be an owner of the `@moorp` organization. Publish the tarballs the check produced (not `npm publish` from a package folder: only `pnpm pack` rewrites `workspace:*` to real versions):
+You need to be logged in (`npm login`) with 2FA on the account, and to be an owner of the `@moorp` organization. Publish the tarballs the check produced (not `npm publish` from a package folder: only `pnpm pack` rewrites `workspace:*` to real versions). Run these from the repository root. The path must start with `./`, otherwise npm reads `dist-release/...` as a GitHub `owner/repo` and fails with "Repository not found". Pass `--tag alpha` explicitly: for a tarball npm ignores `publishConfig.tag` and would publish under `latest`.
 
 ```bash
-npm publish dist-release/moorp-core-0.1.0-alpha.0.tgz
-npm publish dist-release/moorp-vue-0.1.0-alpha.0.tgz
-npm publish dist-release/moorp-shell-0.1.0-alpha.0.tgz
-npm publish dist-release/moorp-0.1.0-alpha.0.tgz
+npm publish ./dist-release/moorp-core-0.1.0-alpha.0.tgz --tag alpha
+npm publish ./dist-release/moorp-vue-0.1.0-alpha.0.tgz --tag alpha
+npm publish ./dist-release/moorp-shell-0.1.0-alpha.0.tgz --tag alpha
+npm publish ./dist-release/moorp-0.1.0-alpha.0.tgz --tag alpha
 ```
 
 Order matters: `@moorp/vue` and `@moorp/shell` depend on `@moorp/core`, and `moorp` depends on `@moorp/core` and `@moorp/shell`, all pinned to the exact version. Each command asks you to confirm in the browser.
