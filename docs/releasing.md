@@ -40,3 +40,14 @@ npm can take a few minutes to make a new version available. A version cannot be 
 ## Next version
 
 Bump `version` in all four `package.json` files to the same value (for example `0.1.0-alpha.1`), run `pnpm install` (the lockfile follows), run `pnpm release:check`, commit, and publish again. For a stable release, change `publishConfig.tag` to `latest` and the version to `0.1.0`.
+
+## Troubleshooting
+
+- `Repository not found` from `git ls-remote ssh://git@github.com/dist-release/...`: the path did not start with `./`, so npm read it as a GitHub `owner/repo`.
+- `E404 ... /-/v1/done?authId=...` right after "Press ENTER to open in the browser": the browser approval was not completed in time (or another command was started meanwhile), and nothing was published. Run the same command again, press Enter, approve straight away, and wait for the `+ name@version` line before the next one. `npm login` first if it keeps failing.
+- A new version can return 404 from `npm view` for a few minutes after `+ name@version`; wait and retry.
+- npm sets `latest` on a package's first publish even with `--tag alpha`, so the three `@moorp/*` packages show `latest` as the alpha. `moorp@latest` stays `0.0.0` until a stable release, which is why installs use `moorp@alpha`.
+
+## History
+
+- `0.1.0-alpha.0` (2026-11-03): first alpha. Published in the order vue, core, shell, moorp (the first core attempt hit the E404 above). Installed from the registry into a copy of a real Vue 3 + Vite 5 + Tailwind 3 project; `moorp init` and `moorp dev` worked, with light and dark design frames and a page frame of the app.
