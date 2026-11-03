@@ -38,3 +38,7 @@ pnpm build       # core, adapter, shell, then the CLI (in dependency order)
 pnpm typecheck
 pnpm test
 ```
+
+## License
+
+[MIT](LICENSE)
