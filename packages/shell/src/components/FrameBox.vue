@@ -14,6 +14,9 @@ const emit = defineEmits<{ zoom: [clientX: number, clientY: number, deltaY: numb
 
 const iframe = ref<HTMLIFrameElement | null>(null)
 
+// Header bar colours: a soft grey in light mode, black in dark mode.
+const barButton = 'text-neutral-500 hover:bg-black/5 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-white/10 dark:hover:text-white'
+
 /** postMessage needs structured-cloneable data, and Vue's reactive proxies are not. */
 const plain = <T,>(v: T): T => (v === undefined ? v : (JSON.parse(JSON.stringify(v)) as T))
 const selected = computed(() => state.selected === props.frame.id)
@@ -203,16 +206,16 @@ async function openSource() {
 
 <template>
   <div class="frame" :data-id="frame.id" :class="{ selected }" :style="{ left: frame.x + 'px', top: frame.y + 'px', width: width + 'px' }">
-    <!-- Framer-style header: always black, as wide as the frame. Type chip, name and width on the left, actions on the right.
+    <!-- Framer-style header, as wide as the frame: soft grey in light mode, black in dark mode. Type chip, name and width on the left, actions on the right.
          Parts drop out as the bar gets narrow (container queries), so small frames at low zoom stay clean. -->
     <div
-      class="bar @container/bar flex h-9 items-center gap-2 rounded-xl bg-neutral-950 p-1 shadow-[0_0_0_1px_var(--neutral-800)]"
+      class="bar @container/bar flex h-9 items-center gap-2 rounded-xl bg-black/[0.07] p-1 dark:bg-neutral-950 dark:shadow-[0_0_0_1px_var(--neutral-800)]"
       @pointerdown="startMove"
       @dblclick="startRename"
     >
       <span
         class="grid size-7 shrink-0 place-items-center rounded-lg"
-        :class="selected ? 'bg-brand fg-brand-on' : 'bg-white/10 text-neutral-300'"
+        :class="selected ? 'bg-brand fg-brand-on' : 'bg-black/[0.06] text-neutral-500 dark:bg-white/10 dark:text-neutral-300'"
         :title="frame.type === 'page' ? 'Page frame' : 'Design frame'"
       >
         <Monitor v-if="frame.type === 'page'" class="size-4" />
@@ -222,25 +225,25 @@ async function openSource() {
         v-if="renaming"
         ref="nameInput"
         v-model="nameDraft"
-        class="h-7 w-40 min-w-0 border-neutral-700 bg-neutral-900 px-1.5 py-0.5 text-xs text-neutral-100 focus-visible:bg-neutral-900"
+        class="h-7 w-40 min-w-0 border-neutral-300 bg-white px-1.5 py-0.5 text-xs text-neutral-900 focus-visible:bg-white dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:focus-visible:bg-neutral-900"
         @pointerdown.stop
         @keydown.enter="finishRename(true)"
         @keydown.esc="finishRename(false)"
         @blur="finishRename(true)"
       />
       <template v-else>
-        <span class="type-body-m-semibold min-w-0 truncate" :class="selected ? 'text-neutral-50' : 'text-neutral-400'" :title="frame.id">{{ frame.name }}</span>
-        <span class="type-code-s hidden shrink-0 text-neutral-500 @[220px]/bar:inline">{{ Math.round(width) }}</span>
+        <span class="type-body-m-semibold min-w-0 truncate" :class="selected ? 'text-neutral-900 dark:text-neutral-50' : 'text-neutral-500 dark:text-neutral-400'" :title="frame.id">{{ frame.name }}</span>
+        <span class="type-code-s hidden shrink-0 text-neutral-400 @[220px]/bar:inline dark:text-neutral-500">{{ Math.round(width) }}</span>
       </template>
       <span class="ml-auto flex shrink-0 items-center gap-0.5 @max-[130px]/bar:hidden" @pointerdown.stop>
         <Tooltip v-if="frame.source" text="Open source in editor">
-          <Button variant="ghost" size="icon-sm" class="text-neutral-300 hover:bg-white/10 hover:text-white" aria-label="Open source in editor" @click="openSource"><ExternalLink /></Button>
+          <Button variant="ghost" size="icon-sm" :class="barButton" aria-label="Open source in editor" @click="openSource"><ExternalLink /></Button>
         </Tooltip>
         <Tooltip text="Duplicate" shortcut="⌘D">
-          <Button variant="ghost" size="icon-sm" class="text-neutral-300 hover:bg-white/10 hover:text-white" aria-label="Duplicate frame (source files are not copied)" @click="copyFrame(frame.id)"><Copy /></Button>
+          <Button variant="ghost" size="icon-sm" :class="barButton" aria-label="Duplicate frame (source files are not copied)" @click="copyFrame(frame.id)"><Copy /></Button>
         </Tooltip>
         <Tooltip text="Remove from canvas" shortcut="⌫">
-          <Button variant="ghost" size="icon-sm" class="text-neutral-300 hover:bg-white/10 hover:text-white" aria-label="Remove from canvas (source files are not deleted)" @click="removeFrame(frame.id)"><Trash2 /></Button>
+          <Button variant="ghost" size="icon-sm" :class="barButton" aria-label="Remove from canvas (source files are not deleted)" @click="removeFrame(frame.id)"><Trash2 /></Button>
         </Tooltip>
       </span>
     </div>
